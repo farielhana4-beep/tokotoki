@@ -59,7 +59,7 @@ class PasswordResetFlowTest extends TestCase
             'email' => 'second-admin@example.test',
         ]);
 
-        $response = $this->actingAs($actor)->post(route('users.password-reset', $target));
+        $response = $this->actingAs($actor)->post(route('admin.users.password-reset', $target));
 
         $response->assertSessionHas('status');
         Notification::assertSentTo($target, ResetPasswordNotification::class);
@@ -71,7 +71,7 @@ class PasswordResetFlowTest extends TestCase
             'email' => 'leader@example.test',
         ]);
 
-        $response = $this->actingAs($actor)->post(route('users.password-reset', $actor));
+        $response = $this->actingAs($actor)->post(route('admin.users.password-reset', $actor));
 
         $response->assertStatus(422);
     }

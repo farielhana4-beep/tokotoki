@@ -62,7 +62,10 @@ class POSCheckoutTest extends TestCase
 
         $this->assertSame(PaymentMethod::Cash, $transaction->payment_method);
         $this->assertSame(PaymentStatus::Paid, $transaction->payment_status);
-        $this->assertSame('12000.00', (string) $transaction->total_price);
+        // 2 x 6000 subtotal + 11% tax (1320) = 13320 total (server-calculated).
+        $this->assertSame('12000.00', (string) $transaction->subtotal_price);
+        $this->assertSame('1320.00', (string) $transaction->tax_price);
+        $this->assertSame('13320.00', (string) $transaction->total_price);
         $this->assertDatabaseHas('transaction_details', [
             'transaction_id' => $transaction->id,
             'product_id' => $product->id,
@@ -74,7 +77,7 @@ class POSCheckoutTest extends TestCase
         ]);
     }
 
-    public function test_qris_checkout_saves_pending_transaction_with_placeholder_token(): void
+    public function test_qris_payment_method_is_rejected(): void
     {
         $user = User::factory()->create();
 
@@ -87,26 +90,20 @@ class POSCheckoutTest extends TestCase
             'min_stock' => 5,
         ]);
 
+        // QRIS is intentionally unsupported: only cash checkout is allowed.
         $this->actingAs($user)
             ->post(route('pos.checkout'), [
-                'payment_method' => PaymentMethod::Qris->value,
+                'payment_method' => 'qris',
                 'items' => [
                     [
                         'product_id' => $product->id,
-                        'quantity' => 3,
+                        'quantity' => 1,
                     ],
                 ],
             ])
-            ->assertRedirect(route('pos.index'));
+            ->assertSessionHasErrors('payment_method');
 
-        $transaction = Transaction::query()->firstOrFail();
-
-        $this->assertSame(PaymentMethod::Qris, $transaction->payment_method);
-        $this->assertSame(PaymentStatus::Pending, $transaction->payment_status);
-        $this->assertStringStartsWith('qris-placeholder-', (string) $transaction->midtrans_snap_token);
-        $this->assertDatabaseHas('products', [
-            'id' => $product->id,
-            'stock' => 17,
-        ]);
+        $this->assertDatabaseCount('transactions', 0);
+        $this->assertDatabaseHas('products', ['id' => $product->id, 'stock' => 20]);
     }
 }

@@ -16,7 +16,7 @@ Reset password
 This link expires in {{ $expiresMinutes }} minutes. If it expires, request a fresh reset from the login screen.
 
 @if($isAdmin)
-Super admin password recovery is restricted to another super admin to keep the koperasi workspace secure.
+Super admin password recovery is restricted to another super admin to keep the TOKOTOKI workspace secure.
 @endif
 
 If you did not request this reset, you can safely ignore this email.

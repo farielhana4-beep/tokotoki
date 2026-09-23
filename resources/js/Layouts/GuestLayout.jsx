@@ -4,7 +4,8 @@ import { Link, usePage } from '@inertiajs/react';
 export default function GuestLayout({ children }) {
     const { settings } = usePage().props;
     const branding = settings?.branding ?? {};
-    const appName = branding.app_name ?? 'Koperasi POS';
+    const appName = branding.app_name ?? 'TOKOTOKI';
+    const tagline = branding.store_tagline ?? 'Kerajinan kecil, dekorasi yang berarti.';
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
@@ -22,14 +23,14 @@ export default function GuestLayout({ children }) {
                                 {appName}
                             </div>
                             <div className="text-xs text-slate-400">
-                                Dark glassmorphism POS workspace
+                                {appName} Admin & Store Management
                             </div>
                         </div>
                     </Link>
 
                     <div className="max-w-2xl space-y-8">
                         <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
-                            Cooperative commerce
+                            {appName} · {tagline}
                         </span>
 
                         <div className="space-y-4">
@@ -37,7 +38,7 @@ export default function GuestLayout({ children }) {
                                 One clean dashboard for cashier speed, inventory control, and reporting.
                             </h1>
                             <p className="max-w-xl text-base leading-7 text-slate-300">
-                                Use the super admin account to manage products, reports, and settings. Use the cashier account for fast POS checkout with a dark, modern interface.
+                                Use your {appName} account to manage products, reports, and settings. Cashier accounts can process store transactions quickly and securely.
                             </p>
                         </div>
 

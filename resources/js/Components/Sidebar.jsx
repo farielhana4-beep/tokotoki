@@ -12,13 +12,13 @@ import {
 } from '@/Components/Icons';
 
 const navigation = [
-    { name: 'Dashboard', routeName: 'dashboard', href: route('dashboard'), roles: ['super_admin'], icon: DashboardIcon },
-    { name: 'Products', routeName: 'products.index', href: route('products.index'), roles: ['super_admin'], icon: ProductsIcon },
+    { name: 'Dashboard', routeName: 'admin.dashboard', href: route('admin.dashboard'), roles: ['super_admin'], icon: DashboardIcon },
+    { name: 'Products', routeName: 'admin.products.index', href: route('admin.products.index'), roles: ['super_admin'], icon: ProductsIcon },
     { name: 'POS Cashier', routeName: 'pos.index', href: route('pos.index'), roles: ['super_admin', 'kasir'], icon: PosIcon },
-    { name: 'Transactions', routeName: 'transactions.index', href: route('transactions.index'), roles: ['super_admin', 'kasir'], icon: ArrowUpRightIcon },
-    { name: 'Reports', routeName: 'reports.index', href: route('reports.index'), roles: ['super_admin'], icon: ReportsIcon },
-    { name: 'Users', routeName: 'users.index', href: route('users.index'), roles: ['super_admin'], icon: UsersIcon },
-    { name: 'Settings', routeName: 'settings.index', href: route('settings.index'), roles: ['super_admin'], icon: SettingsIcon },
+    { name: 'Transactions', routeName: 'admin.transactions.index', href: route('admin.transactions.index'), roles: ['super_admin', 'kasir'], icon: ArrowUpRightIcon },
+    { name: 'Reports', routeName: 'admin.reports.index', href: route('admin.reports.index'), roles: ['super_admin'], icon: ReportsIcon },
+    { name: 'Users', routeName: 'admin.users.index', href: route('admin.users.index'), roles: ['super_admin'], icon: UsersIcon },
+    { name: 'Settings', routeName: 'admin.settings', href: route('admin.settings'), roles: ['super_admin'], icon: SettingsIcon },
 ];
 
 function NavItem({ item, mobile = false, onNavigate }) {
@@ -148,7 +148,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                         {branding.logo_url ? (
                             <img
                                 src={branding.logo_url}
-                                alt={branding.app_name ?? 'Koperasi POS'}
+                                alt={branding.app_name ?? 'TOKOTOKI'}
                                 className="h-full w-full object-cover"
                             />
                         ) : (
@@ -158,13 +158,13 @@ export default function Sidebar({ mobile = false, onNavigate }) {
 
                     <div className="min-w-0 flex-1">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-cyan-300">
-                            School koperasi
+                            {branding.app_name ?? 'TOKOTOKI'} Admin
                         </div>
                         <div className="mt-1 truncate text-lg font-semibold text-white">
-                            {branding.app_name ?? 'Koperasi POS'}
+                            {branding.app_name ?? 'TOKOTOKI'}
                         </div>
                         <div className="mt-1 text-sm text-slate-400">
-                            {branding.school_name ?? 'Professional cooperative workspace'}
+                            {branding.school_name ?? 'Store management workspace'}
                         </div>
                         <div className="mt-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
                             {roleLabel}
@@ -176,7 +176,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                     <InfoCard
                         icon={SupportIcon}
                         label="Support"
-                        value={branding.school_email || 'admin@koperasi.test'}
+                        value={branding.school_email || 'admin@tokotoki.test'}
                         helper="Primary contact for admin and cashier support"
                         valueClassName="break-all sm:break-normal sm:truncate"
                     />
@@ -209,7 +209,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                         All services online
                     </div>
                     <div className="mt-1 text-sm leading-6 text-slate-400">
-                        Laravel, Inertia, React, Tailwind, Midtrans ready
+                        Laravel, Inertia, React, Tailwind ready
                     </div>
                 </div>
             </div>

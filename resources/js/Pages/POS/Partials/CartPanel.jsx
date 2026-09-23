@@ -90,7 +90,6 @@ export default function CartPanel({
     onClearCart,
     onPreviewReceipt,
     onOpenCash,
-    onOpenQris,
     onOpenCard,
     onSetDiscount,
 }) {
@@ -192,7 +191,7 @@ export default function CartPanel({
                     </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="mt-6 grid grid-cols-1 gap-3">
                     <button
                         type="button"
                         onClick={onOpenCash}
@@ -204,19 +203,6 @@ export default function CartPanel({
                         </div>
                         <div className="mt-1 text-base font-semibold text-white">
                             Cash
-                        </div>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onOpenQris}
-                        disabled={!safeCart.length}
-                        className="rounded-[22px] border border-white/10 bg-white/5 px-4 py-4 text-left transition duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:bg-violet-400/5"
-                    >
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                            Payment
-                        </div>
-                        <div className="mt-1 text-base font-semibold text-white">
-                            QRIS
                         </div>
                     </button>
                 </div>
@@ -258,7 +244,7 @@ export default function CartPanel({
                 </div>
 
                 <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-slate-400">
-                    Shortcuts: <span className="text-white">F2</span> cash, <span className="text-white">F4</span> QRIS, <span className="text-white">Esc</span> clear cart. Cart items: <span className="text-white">{safeCart.length}</span>
+                    Shortcuts: <span className="text-white">F2</span> cash, <span className="text-white">Esc</span> clear cart. Cart items: <span className="text-white">{safeCart.length}</span>
                 </div>
             </div>
         </aside>

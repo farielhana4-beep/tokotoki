@@ -89,10 +89,10 @@ export default function Dashboard({ report, metrics, recentTransactions }) {
             header={
                 <SectionHeading
                     eyebrow="Premium cockpit"
-                    title="School koperasi operations at a glance"
+                    title="TOKOTOKI operations at a glance"
                     description="Track daily sales, low stock items, payment channels, and cashier activity from one premium admin workspace."
                     actions={[
-                        <Link key="reports" href={route('reports.index')} className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                        <Link key="reports" href={route('admin.reports.index')} className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
                             Open Reports
                         </Link>,
                         <Link key="pos" href={route('pos.index')} className="rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
@@ -105,11 +105,10 @@ export default function Dashboard({ report, metrics, recentTransactions }) {
             <Head title="Dashboard" />
 
             <div className="space-y-6">
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     <MetricCard label="Today Revenue" value={formatCurrency(metrics.today_revenue, currency)} note="Paid transactions only" tone="from-cyan-400 to-blue-500" icon={DashboardIcon} />
                     <MetricCard label="Today Transactions" value={formatNumber(metrics.today_transactions)} note="Completed and pending sales" tone="from-emerald-400 to-teal-500" icon={PosIcon} />
                     <MetricCard label="Low Stock Products" value={formatNumber(metrics.low_stock_products)} note="Needs replenishment soon" tone="from-amber-400 to-orange-500" icon={ProductsIcon} />
-                    <MetricCard label="Pending QRIS" value={formatNumber(metrics.pending_qris)} note="Awaiting Midtrans confirmation" tone="from-fuchsia-400 to-violet-500" icon={ReportsIcon} />
                 </section>
 
                 <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
@@ -162,9 +161,9 @@ export default function Dashboard({ report, metrics, recentTransactions }) {
                         <GlassCard className="p-5">
                             <SectionHeading eyebrow="Quick actions" title="Fast access" description="Jump straight into common tasks." />
                             <div className="mt-5 space-y-3">
-                                <QuickAction title="Open POS cashier" description="Start a high-speed checkout session for the canteen." href={route('pos.index')} icon={PosIcon} />
-                                <QuickAction title="Manage products" description="Review catalog, stock levels, and pricing." href={route('products.index')} icon={ProductsIcon} />
-                                <QuickAction title="View analytics" description="Export reports and monitor trends." href={route('reports.index')} icon={ReportsIcon} />
+                                <QuickAction title="Open POS cashier" description="Start a fast checkout session for your store." href={route('pos.index')} icon={PosIcon} />
+                                <QuickAction title="Manage products" description="Review catalog, stock levels, and pricing." href={route('admin.products.index')} icon={ProductsIcon} />
+                                <QuickAction title="View analytics" description="Export reports and monitor trends." href={route('admin.reports.index')} icon={ReportsIcon} />
                             </div>
                         </GlassCard>
                     </div>

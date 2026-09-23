@@ -5,8 +5,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { useBrand } from '@/lib/brand';
 
 export default function Login({ status, canResetPassword }) {
+    const brand = useBrand();
     const { auth } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -25,18 +27,18 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Masuk" />
 
             <div className="space-y-6">
                 <div className="space-y-2">
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
-                        Sign in
+                        Masuk
                     </p>
                     <h1 className="text-3xl font-semibold tracking-tight text-white">
-                        Welcome back
+                        Selamat datang kembali
                     </h1>
                     <p className="text-sm leading-6 text-slate-300">
-                        Use your cooperative account to access the POS dashboard.
+                        Masuk ke akun {brand.name} Anda.
                     </p>
                 </div>
 
@@ -48,7 +50,7 @@ export default function Login({ status, canResetPassword }) {
 
                 <form onSubmit={submit} className="space-y-5">
                     <div className="space-y-2">
-                        <InputLabel htmlFor="email" value="Email address" />
+                        <InputLabel htmlFor="email" value="Alamat email" />
                         <TextInput
                             id="email"
                             type="email"
@@ -64,7 +66,7 @@ export default function Login({ status, canResetPassword }) {
                     </div>
 
                     <div className="space-y-2">
-                        <InputLabel htmlFor="password" value="Password" />
+                        <InputLabel htmlFor="password" value="Kata sandi" />
                         <TextInput
                             id="password"
                             type="password"
@@ -88,7 +90,7 @@ export default function Login({ status, canResetPassword }) {
                                 }
                             />
                             <span className="text-sm text-slate-300">
-                                Remember me
+                                Ingat saya
                             </span>
                         </label>
 
@@ -97,7 +99,7 @@ export default function Login({ status, canResetPassword }) {
                                 href={route('password.request')}
                                 className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
                             >
-                                Forgot password?
+                                Lupa kata sandi?
                             </Link>
                         ) : null}
                     </div>
@@ -110,7 +112,7 @@ export default function Login({ status, canResetPassword }) {
                     ) : null}
 
                     <PrimaryButton className="w-full" disabled={processing}>
-                        {processing ? 'Signing in...' : 'Log in'}
+                        {processing ? 'Memproses...' : 'Masuk'}
                     </PrimaryButton>
                 </form>
 
@@ -135,12 +137,12 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-slate-400">
-                    <span>Need an account?</span>
+                    <span>Belum punya akun?</span>
                     <Link
                         href={route('register')}
                         className="font-medium text-white transition hover:text-cyan-300"
                     >
-                        Register
+                        Daftar
                     </Link>
                 </div>
             </div>

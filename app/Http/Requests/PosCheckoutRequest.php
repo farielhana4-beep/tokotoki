@@ -16,7 +16,7 @@ class PosCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_method' => ['required', Rule::in(PaymentMethod::values())],
+            'payment_method' => ['required', Rule::in([PaymentMethod::Cash->value])],
             'cash_received' => ['nullable', 'numeric', 'min:0'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],

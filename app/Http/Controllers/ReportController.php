@@ -27,8 +27,8 @@ class ReportController extends Controller
             'selectedPeriod' => $period->value,
             'report' => $report,
             'exports' => [
-                'pdf' => route('reports.export.pdf', ['period' => $period->value]),
-                'excel' => route('reports.export.excel', ['period' => $period->value]),
+                'pdf' => route('admin.reports.export.pdf', ['period' => $period->value]),
+                'excel' => route('admin.reports.export.excel', ['period' => $period->value]),
             ],
         ]);
     }

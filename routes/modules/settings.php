@@ -4,9 +4,9 @@ use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])
-    ->prefix('settings')
-    ->name('settings.')
+    ->prefix('admin/settings')
+    ->name('admin.settings')
     ->group(function () {
-        Route::get('/', [SettingsController::class, 'index'])->name('index');
-        Route::post('/', [SettingsController::class, 'update'])->name('update');
+        Route::get('/', [SettingsController::class, 'index']);
+        Route::post('/', [SettingsController::class, 'update'])->name('.update');
     });

@@ -7,7 +7,7 @@ export default function DeleteProductModal({ show, product, onClose }) {
     const destroy = () => {
         if (!product) return;
 
-        router.delete(route('products.destroy', product.id), {
+        router.delete(route('admin.products.destroy', product.id), {
             preserveScroll: true,
             onSuccess: onClose,
         });

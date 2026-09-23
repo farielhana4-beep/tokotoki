@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -50,6 +53,16 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // Never allow the system to reach zero super_admin accounts.
+        if (
+            $user->isSuperAdmin()
+            && User::query()->where('role', UserRole::SuperAdmin)->count() <= 1
+        ) {
+            throw ValidationException::withMessages([
+                'password' => 'Akun Super Admin terakhir tidak dapat dihapus.',
+            ]);
+        }
 
         Auth::logout();
 

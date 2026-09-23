@@ -11,20 +11,25 @@ class DefaultSettingsSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'app_name' => config('app.name', 'Koperasi POS'),
-            'school_name' => 'Koperasi Sekolah',
-            'school_address' => 'Jl. Pendidikan No. 1',
-            'school_phone' => '0812-3456-7890',
-            'school_email' => 'koperasi@sekolah.test',
+            'app_name' => config('app.name', 'TOKOTOKI'),
+            'store_tagline' => 'Kerajinan kecil, dekorasi yang berarti.',
+            'store_description' => 'TOKOTOKI adalah toko kerajinan dan dekorasi yang menyediakan berbagai produk untuk melengkapi kebutuhan dekorasi, aksesoris, perlengkapan rumah, dan souvenir.',
+            'store_short_description' => 'Toko Kerajinan & Dekorasi',
+            'store_whatsapp' => '',
+            'store_email' => '',
+            'store_location' => '',
+            'store_instagram' => '',
+            'store_tiktok' => '',
+            'school_name' => 'TOKOTOKI',
+            'school_address' => '',
+            'school_phone' => '',
+            'school_email' => '',
             'timezone' => 'Asia/Jakarta',
             'currency' => 'IDR',
-            'receipt_footer_text' => 'Terima kasih telah berbelanja di koperasi sekolah kami.',
+            'receipt_footer_text' => 'Terima kasih telah berbelanja di TOKOTOKI.',
             'pos_auto_print_receipt' => '1',
-            'pos_enable_qris' => '1',
             'pos_show_low_stock_warning' => '1',
-            'midtrans_merchant_id' => '',
-            'midtrans_is_production' => '0',
-            'mail_from_name' => 'Koperasi POS',
+            'mail_from_name' => 'TOKOTOKI',
             'mail_from_address' => 'noreply@koperasi.test',
             'mail_reply_to' => 'support@koperasi.test',
             'notifications_email' => 'admin@koperasi.test',
@@ -40,6 +45,14 @@ class DefaultSettingsSeeder extends Seeder
         $groupMap = [
             'branding' => [
                 'app_name',
+                'store_tagline',
+                'store_description',
+                'store_short_description',
+                'store_whatsapp',
+                'store_email',
+                'store_location',
+                'store_instagram',
+                'store_tiktok',
                 'school_name',
                 'school_address',
                 'school_phone',
@@ -50,12 +63,7 @@ class DefaultSettingsSeeder extends Seeder
             'pos' => [
                 'receipt_footer_text',
                 'pos_auto_print_receipt',
-                'pos_enable_qris',
                 'pos_show_low_stock_warning',
-            ],
-            'midtrans' => [
-                'midtrans_merchant_id',
-                'midtrans_is_production',
             ],
             'mail' => [
                 'mail_from_name',
@@ -82,9 +90,7 @@ class DefaultSettingsSeeder extends Seeder
 
         $booleanKeys = [
             'pos_auto_print_receipt',
-            'pos_enable_qris',
             'pos_show_low_stock_warning',
-            'midtrans_is_production',
             'backup_enabled',
             'permission_self_registration',
             'permission_cashier_refund',

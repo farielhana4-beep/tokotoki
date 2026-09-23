@@ -15,6 +15,14 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'app_name' => ['required', 'string', 'max:120'],
+            'store_tagline' => ['nullable', 'string', 'max:120'],
+            'store_description' => ['nullable', 'string', 'max:500'],
+            'store_short_description' => ['nullable', 'string', 'max:120'],
+            'store_whatsapp' => ['nullable', 'string', 'max:30', 'regex:/^[+0-9][0-9\s\-.()]{6,25}$/'],
+            'store_email' => ['nullable', 'email', 'max:120'],
+            'store_location' => ['nullable', 'string', 'max:255'],
+            'store_instagram' => ['nullable', 'url', 'max:255'],
+            'store_tiktok' => ['nullable', 'url', 'max:255'],
             'school_name' => ['nullable', 'string', 'max:150'],
             'school_address' => ['nullable', 'string', 'max:255'],
             'school_phone' => ['nullable', 'string', 'max:30'],
@@ -23,12 +31,7 @@ class UpdateSettingsRequest extends FormRequest
             'currency' => ['nullable', 'string', 'size:3'],
             'receipt_footer_text' => ['nullable', 'string', 'max:255'],
             'pos_auto_print_receipt' => ['nullable', 'boolean'],
-            'pos_enable_qris' => ['nullable', 'boolean'],
             'pos_show_low_stock_warning' => ['nullable', 'boolean'],
-            'midtrans_server_key' => ['nullable', 'string', 'max:255'],
-            'midtrans_client_key' => ['nullable', 'string', 'max:255'],
-            'midtrans_merchant_id' => ['nullable', 'string', 'max:255'],
-            'midtrans_is_production' => ['nullable', 'boolean'],
             'mail_from_name' => ['nullable', 'string', 'max:120'],
             'mail_from_address' => ['nullable', 'email', 'max:120'],
             'mail_reply_to' => ['nullable', 'email', 'max:120'],
@@ -41,6 +44,7 @@ class UpdateSettingsRequest extends FormRequest
             'appearance_theme' => ['required', 'in:dark,light'],
             'system_maintenance_enabled' => ['nullable', 'boolean'],
             'app_logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'remove_app_logo' => ['nullable', 'boolean'],
             'favicon' => ['nullable', 'file', 'mimes:ico,png,svg,jpg,jpeg,webp', 'max:1024'],
         ];
     }

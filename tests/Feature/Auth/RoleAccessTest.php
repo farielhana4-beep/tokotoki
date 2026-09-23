@@ -18,25 +18,25 @@ class RoleAccessTest extends TestCase
         ]);
 
         $this->actingAs($kasir)->get(route('pos.index'))->assertOk();
-        $this->actingAs($kasir)->get(route('transactions.index'))->assertOk();
+        $this->actingAs($kasir)->get(route('admin.transactions.index'))->assertOk();
 
-        $this->actingAs($kasir)->get(route('dashboard'))->assertForbidden();
-        $this->actingAs($kasir)->get(route('products.index'))->assertForbidden();
-        $this->actingAs($kasir)->get(route('reports.index'))->assertForbidden();
-        $this->actingAs($kasir)->get(route('users.index'))->assertForbidden();
-        $this->actingAs($kasir)->get(route('settings.index'))->assertForbidden();
+        $this->actingAs($kasir)->get(route('admin.dashboard'))->assertRedirect(route('pos.index'));
+        $this->actingAs($kasir)->get(route('admin.products.index'))->assertRedirect(route('pos.index'));
+        $this->actingAs($kasir)->get(route('admin.reports.index'))->assertRedirect(route('pos.index'));
+        $this->actingAs($kasir)->get(route('admin.users.index'))->assertRedirect(route('pos.index'));
+        $this->actingAs($kasir)->get(route('admin.settings'))->assertRedirect(route('pos.index'));
     }
 
     public function test_super_admin_can_access_all_protected_pages(): void
     {
         $superAdmin = User::factory()->superAdmin()->create();
 
-        $this->actingAs($superAdmin)->get(route('dashboard'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.dashboard'))->assertOk();
         $this->actingAs($superAdmin)->get(route('pos.index'))->assertOk();
-        $this->actingAs($superAdmin)->get(route('transactions.index'))->assertOk();
-        $this->actingAs($superAdmin)->get(route('products.index'))->assertOk();
-        $this->actingAs($superAdmin)->get(route('reports.index'))->assertOk();
-        $this->actingAs($superAdmin)->get(route('users.index'))->assertOk();
-        $this->actingAs($superAdmin)->get(route('settings.index'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.transactions.index'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.products.index'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.reports.index'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.users.index'))->assertOk();
+        $this->actingAs($superAdmin)->get(route('admin.settings'))->assertOk();
     }
 }

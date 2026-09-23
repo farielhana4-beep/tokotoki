@@ -86,7 +86,7 @@
 <body>
     <div class="header">
         <div>
-            <div class="title">Koperasi POS Report</div>
+            <div class="title">TOKOTOKI Report</div>
             <div class="subtitle">{{ $periodLabel }} period report</div>
         </div>
         <div class="pill">{{ $report['range']['start'] }} - {{ $report['range']['end'] }}</div>

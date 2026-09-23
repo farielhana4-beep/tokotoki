@@ -13,7 +13,7 @@ export default function Maintenance({ branding = {} }) {
                             {branding.logo_url ? (
                                 <img
                                     src={branding.logo_url}
-                                    alt={branding.app_name ?? 'Koperasi POS'}
+                                    alt={branding.app_name ?? 'TOKOTOKI'}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
@@ -26,7 +26,7 @@ export default function Maintenance({ branding = {} }) {
                                 System Maintenance
                             </p>
                             <h1 className="text-3xl font-semibold text-white">
-                                {branding.app_name ?? 'Koperasi POS'} is temporarily unavailable
+                                {branding.app_name ?? 'TOKOTOKI'} is temporarily unavailable
                             </h1>
                             <p className="max-w-2xl text-sm leading-6 text-slate-400">
                                 The system is currently in maintenance mode. Super admin users can still sign in and manage the platform, while cashier access is temporarily paused.

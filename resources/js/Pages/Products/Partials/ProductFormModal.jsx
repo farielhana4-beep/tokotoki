@@ -28,7 +28,7 @@ export default function ProductFormModal({
     categoriesList = [],
     onClose,
 }) {
-    const { data, setData, post, put, processing, errors, reset, clearErrors } =
+    const { data, setData, post, processing, errors, reset, clearErrors } =
         useForm({ ...emptyProduct });
 
     useEffect(() => {
@@ -64,28 +64,6 @@ export default function ProductFormModal({
         const options = {
             preserveScroll: true,
             forceFormData: Boolean(data.image),
-            transform: (formData) => {
-                const payload = {
-                    ...formData,
-                    purchase_price:
-                        formData.purchase_price === ''
-                            ? ''
-                            : Number(formData.purchase_price),
-                    selling_price:
-                        formData.selling_price === ''
-                            ? ''
-                            : Number(formData.selling_price),
-                    stock: formData.stock === '' ? 0 : Number(formData.stock),
-                    min_stock:
-                        formData.min_stock === '' ? 0 : Number(formData.min_stock),
-                };
-
-                if (!formData.image) {
-                    delete payload.image;
-                }
-
-                return payload;
-            },
             onSuccess: () => {
                 onClose();
                 clearErrors();
@@ -95,11 +73,18 @@ export default function ProductFormModal({
         };
 
         if (mode === 'edit' && product) {
-            put(route('products.update', product.id), options);
+            // NOTE: real PUT multipart bodies are not parsed by PHP/Laravel,
+            // and per-call `transform` is ignored by Inertia (only the
+            // form-level transform runs). So spoof the method through the
+            // form data itself: POST + _method=put works for both JSON and
+            // multipart payloads. setData updates dataRef synchronously, so
+            // post() below already includes _method.
+            setData('_method', 'put');
+            post(route('admin.products.update', product.id), options);
             return;
         }
 
-        post(route('products.store'), options);
+        post(route('admin.products.store'), options);
     };
 
     const title = mode === 'edit' ? 'Edit Product' : 'Add Product';

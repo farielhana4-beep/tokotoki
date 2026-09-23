@@ -1,6 +1,9 @@
 <?php
 
-use App\Enums\UserRole;
+use App\Http\Controllers\PublicStoreController;
+use App\Http\Controllers\CustomerAccountController;
+use App\Http\Controllers\StoreCartController;
+use App\Http\Controllers\StoreCheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Enums\ReportPeriod;
 use App\Enums\PaymentStatus;
@@ -9,17 +12,26 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    if (! auth()->check()) {
-        return redirect()->route('login');
-    }
+// Public storefront. Admin and POS routes remain in their existing modules.
+Route::get('/', [PublicStoreController::class, 'home'])->name('store.home');
+Route::get('/catalog', [PublicStoreController::class, 'index'])->name('store.catalog');
+Route::get('/catalog/{product}', [PublicStoreController::class, 'show'])->name('store.products.show');
+Route::get('/cart', [StoreCartController::class, 'index'])->name('store.cart.index');
+Route::post('/cart/items/{product}', [StoreCartController::class, 'store'])->name('store.cart.store');
+Route::patch('/cart/items/{product}', [StoreCartController::class, 'update'])->name('store.cart.update');
+Route::delete('/cart/items/{productId}', [StoreCartController::class, 'destroy'])->whereNumber('productId')->name('store.cart.destroy');
+Route::get('/checkout', [StoreCheckoutController::class, 'create'])->name('store.checkout.create');
+Route::post('/checkout', [StoreCheckoutController::class, 'store'])->name('store.checkout.store');
+Route::get('/checkout/success/{transaction}', [StoreCheckoutController::class, 'success'])->name('store.checkout.success');
 
-    $user = auth()->user();
-
-    return redirect()->route(UserRole::homeRouteFor($user?->role));
+// Customer account (login required, any role; data is scoped to the owner).
+Route::middleware('auth')->group(function () {
+    Route::get('/akun', [CustomerAccountController::class, 'account'])->name('store.account');
+    Route::get('/pesanan', [CustomerAccountController::class, 'orders'])->name('store.orders.index');
+    Route::get('/pesanan/{transaction}', [CustomerAccountController::class, 'showOrder'])->name('store.orders.show');
 });
 
-Route::get('/dashboard', function () {
+Route::get('/admin/dashboard', function () {
     $report = app(\App\Services\Report\ReportService::class)->buildReport(ReportPeriod::Weekly);
 
     return Inertia::render('Dashboard', [
@@ -36,11 +48,6 @@ Route::get('/dashboard', function () {
                 ->where('payment_status', PaymentStatus::Paid->value)
                 ->count(),
             'low_stock_products' => Product::query()->whereColumn('stock', '<=', 'min_stock')->count(),
-            'pending_qris' => Transaction::query()
-                ->where('invoice_number', 'not like', 'INV-DEMO-%')
-                ->where('payment_method', 'qris')
-                ->where('payment_status', PaymentStatus::Pending->value)
-                ->count(),
         ],
         'recentTransactions' => Transaction::query()
             ->with('user:id,name')
@@ -57,16 +64,13 @@ Route::get('/dashboard', function () {
                 'created_at' => $transaction->created_at?->format('d M H:i'),
             ]),
     ]);
-})->middleware(['auth', 'verified', 'role:super_admin'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role:super_admin'])->name('admin.dashboard');
 
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance', [
         'branding' => app(\App\Services\Settings\SettingsService::class)->frontend()['branding'],
     ]);
 })->name('maintenance');
-
-Route::post('/payments/midtrans/webhook', [\App\Http\Controllers\MidtransWebhookController::class, 'store'])
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

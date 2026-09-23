@@ -4,8 +4,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useBrand } from '@/lib/brand';
 
 export default function Register() {
+    const brand = useBrand();
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -23,25 +25,25 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Daftar" />
 
             <div className="space-y-6">
                 <div className="space-y-2">
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
-                        Create account
+                        Buat akun
                     </p>
                     <h1 className="text-3xl font-semibold tracking-tight text-white">
-                        Set up a cashier account
+                        Daftar sebagai pembeli
                     </h1>
                     <p className="text-sm leading-6 text-slate-300">
-                        New accounts are created as cashier users and can start
-                        processing POS transactions immediately.
+                        Buat akun {brand.name} untuk checkout lebih cepat dan
+                        melihat riwayat pesanan Anda.
                     </p>
                 </div>
 
                 <form onSubmit={submit} className="space-y-5">
                     <div className="space-y-2">
-                        <InputLabel htmlFor="name" value="Full name" />
+                        <InputLabel htmlFor="name" value="Nama lengkap" />
                         <TextInput
                             id="name"
                             name="name"
@@ -51,13 +53,13 @@ export default function Register() {
                             isFocused={true}
                             onChange={(e) => setData('name', e.target.value)}
                             required
-                            placeholder="Kasir Baru"
+                            placeholder="Nama lengkap Anda"
                         />
                         <InputError message={errors.name} />
                     </div>
 
                     <div className="space-y-2">
-                        <InputLabel htmlFor="email" value="Email address" />
+                        <InputLabel htmlFor="email" value="Alamat email" />
                         <TextInput
                             id="email"
                             type="email"
@@ -67,13 +69,13 @@ export default function Register() {
                             autoComplete="username"
                             onChange={(e) => setData('email', e.target.value)}
                             required
-                            placeholder="kasir@koperasi.test"
+                            placeholder="nama@email.com"
                         />
                         <InputError message={errors.email} />
                     </div>
 
                     <div className="space-y-2">
-                        <InputLabel htmlFor="password" value="Password" />
+                        <InputLabel htmlFor="password" value="Kata sandi" />
                         <TextInput
                             id="password"
                             type="password"
@@ -83,7 +85,7 @@ export default function Register() {
                             autoComplete="new-password"
                             onChange={(e) => setData('password', e.target.value)}
                             required
-                            placeholder="At least 8 characters"
+                            placeholder="Minimal 8 karakter"
                         />
                         <InputError message={errors.password} />
                     </div>
@@ -91,7 +93,7 @@ export default function Register() {
                     <div className="space-y-2">
                         <InputLabel
                             htmlFor="password_confirmation"
-                            value="Confirm password"
+                            value="Konfirmasi kata sandi"
                         />
                         <TextInput
                             id="password_confirmation"
@@ -104,6 +106,7 @@ export default function Register() {
                                 setData('password_confirmation', e.target.value)
                             }
                             required
+                            placeholder="Ulangi kata sandi"
                         />
                         <InputError
                             message={errors.password_confirmation}
@@ -111,17 +114,17 @@ export default function Register() {
                     </div>
 
                     <PrimaryButton className="w-full" disabled={processing}>
-                        {processing ? 'Creating account...' : 'Register'}
+                        {processing ? 'Mendaftarkan...' : 'Daftar'}
                     </PrimaryButton>
                 </form>
 
                 <div className="flex items-center justify-between text-sm text-slate-400">
-                    <span>Already have an account?</span>
+                    <span>Sudah punya akun?</span>
                     <Link
                         href={route('login')}
                         className="font-medium text-white transition hover:text-cyan-300"
                     >
-                        Log in
+                        Masuk
                     </Link>
                 </div>
             </div>

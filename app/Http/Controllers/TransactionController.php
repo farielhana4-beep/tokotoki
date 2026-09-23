@@ -105,6 +105,7 @@ class TransactionController extends Controller
         return [
             'id' => $transaction->id,
             'invoice_number' => $transaction->invoice_number,
+            'source' => $transaction->source ?? 'pos',
             'payment_method' => $transaction->payment_method->value,
             'payment_status' => $transaction->payment_status->value,
             'subtotal' => (float) $transaction->subtotal_price,
@@ -114,6 +115,8 @@ class TransactionController extends Controller
             'cash_received' => $transaction->cash_received !== null ? (float) $transaction->cash_received : null,
             'change' => (float) $transaction->change_amount,
             'cashier_name' => $transaction->user?->name ?? '-',
+            'customer_name' => $transaction->customer_name,
+            'customer_phone' => $transaction->customer_phone,
             'created_at' => $transaction->created_at?->format('d M Y H:i'),
             'items' => $items,
             'snap_token' => $transaction->midtrans_snap_token,

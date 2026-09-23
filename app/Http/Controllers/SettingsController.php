@@ -23,6 +23,14 @@ class SettingsController extends Controller
         $settings->update(
             [
                 'app_name' => $validated['app_name'],
+                'store_tagline' => $validated['store_tagline'] ?? '',
+                'store_description' => $validated['store_description'] ?? '',
+                'store_short_description' => $validated['store_short_description'] ?? '',
+                'store_whatsapp' => $validated['store_whatsapp'] ?? '',
+                'store_email' => $validated['store_email'] ?? '',
+                'store_location' => $validated['store_location'] ?? '',
+                'store_instagram' => $validated['store_instagram'] ?? '',
+                'store_tiktok' => $validated['store_tiktok'] ?? '',
                 'school_name' => $validated['school_name'] ?? '',
                 'school_address' => $validated['school_address'] ?? '',
                 'school_phone' => $validated['school_phone'] ?? '',
@@ -31,10 +39,7 @@ class SettingsController extends Controller
                 'currency' => strtoupper($validated['currency'] ?? 'IDR'),
                 'receipt_footer_text' => $validated['receipt_footer_text'] ?? '',
                 'pos_auto_print_receipt' => (bool) ($validated['pos_auto_print_receipt'] ?? false),
-                'pos_enable_qris' => (bool) ($validated['pos_enable_qris'] ?? false),
                 'pos_show_low_stock_warning' => (bool) ($validated['pos_show_low_stock_warning'] ?? false),
-                'midtrans_merchant_id' => $validated['midtrans_merchant_id'] ?? '',
-                'midtrans_is_production' => (bool) ($validated['midtrans_is_production'] ?? false),
                 'mail_from_name' => $validated['mail_from_name'] ?? '',
                 'mail_from_address' => $validated['mail_from_address'] ?? '',
                 'mail_reply_to' => $validated['mail_reply_to'] ?? '',
@@ -46,8 +51,6 @@ class SettingsController extends Controller
                 'permission_cashier_refund' => (bool) ($validated['permission_cashier_refund'] ?? false),
                 'appearance_theme' => $validated['appearance_theme'],
                 'system_maintenance_enabled' => (bool) ($validated['system_maintenance_enabled'] ?? false),
-                'midtrans_server_key' => $validated['midtrans_server_key'] ?? '',
-                'midtrans_client_key' => $validated['midtrans_client_key'] ?? '',
             ],
             [
                 'app_logo_path' => $request->file('app_logo'),
@@ -56,6 +59,10 @@ class SettingsController extends Controller
             $request->user(),
         );
 
-        return redirect()->route('settings.index')->with('success', 'Settings updated successfully.');
+        if (! $request->file('app_logo') && (bool) ($validated['remove_app_logo'] ?? false)) {
+            $settings->removeFile('app_logo_path', $request->user());
+        }
+
+        return redirect()->route('admin.settings')->with('success', 'Settings updated successfully.');
     }
 }

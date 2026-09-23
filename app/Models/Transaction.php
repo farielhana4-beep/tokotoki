@@ -12,7 +12,11 @@ class Transaction extends Model
 {
     protected $fillable = [
         'invoice_number',
+        'source',
         'user_id',
+        'customer_name',
+        'customer_phone',
+        'customer_address',
         'subtotal_price',
         'tax_price',
         'discount_price',

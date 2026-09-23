@@ -26,6 +26,8 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('pos.index', absolute: false));
+        // Public self-registration creates a customer (pembeli), never staff.
+        $this->assertSame('customer', auth()->user()->role->value);
+        $response->assertRedirect(route('store.home', absolute: false));
     }
 }

@@ -24,7 +24,7 @@ class SettingsModuleTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-            ->post(route('settings.update'), [
+            ->post(route('admin.settings.update'), [
                 'app_name' => 'Koperasi POS',
                 'school_name' => 'SMA 1',
                 'school_address' => 'Jl. Merdeka 1',
@@ -32,27 +32,21 @@ class SettingsModuleTest extends TestCase
                 'school_email' => 'admin@example.test',
                 'receipt_footer_text' => 'Terima kasih.',
                 'pos_auto_print_receipt' => true,
-                'pos_enable_qris' => true,
                 'pos_show_low_stock_warning' => true,
-                'midtrans_server_key' => 'server-key',
-                'midtrans_client_key' => 'client-key',
-                'midtrans_merchant_id' => 'merchant-1',
-                'midtrans_is_production' => false,
                 'appearance_theme' => 'dark',
                 'system_maintenance_enabled' => false,
                 'app_logo' => UploadedFile::fake()->image('logo.png', 512, 512),
                 'favicon' => UploadedFile::fake()->image('favicon.png', 64, 64),
             ])
-            ->assertRedirect(route('settings.index'));
+            ->assertRedirect(route('admin.settings'));
 
         $this->assertDatabaseHas('settings', [
             'key' => 'app_name',
             'value' => 'Koperasi POS',
         ]);
 
-        $this->assertDatabaseHas('settings', [
+        $this->assertDatabaseMissing('settings', [
             'key' => 'midtrans_server_key',
-            'value' => 'server-key',
         ]);
 
         $this->assertTrue(Setting::query()->where('key', 'app_logo_path')->exists());
@@ -65,6 +59,52 @@ class SettingsModuleTest extends TestCase
         Storage::disk('public')->assertExists($faviconPath);
     }
 
+    public function test_super_admin_can_update_store_contacts_and_remove_logo(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create([
+            'role' => UserRole::SuperAdmin,
+            'email_verified_at' => now(),
+        ]);
+
+        Setting::query()->updateOrCreate(
+            ['key' => 'app_logo_path'],
+            ['group' => 'branding', 'type' => 'file', 'value' => 'settings/logos/old-logo.png'],
+        );
+        Storage::disk('public')->put('settings/logos/old-logo.png', 'fake-image');
+
+        $this->actingAs($admin)
+            ->post(route('admin.settings.update'), [
+                'app_name' => 'TOKOTOKI',
+                'store_tagline' => 'Kerajinan kecil, dekorasi yang berarti.',
+                'store_short_description' => 'Toko Kerajinan & Dekorasi',
+                'store_whatsapp' => '0812-3456-7890',
+                'store_email' => 'toko@example.test',
+                'store_location' => 'Ponorogo',
+                'store_instagram' => 'https://instagram.com/tokotoki',
+                'store_tiktok' => 'https://tiktok.com/@tokotoki',
+                'appearance_theme' => 'dark',
+                'remove_app_logo' => true,
+            ])
+            ->assertRedirect(route('admin.settings'));
+
+        $this->assertDatabaseHas('settings', ['key' => 'store_whatsapp', 'value' => '0812-3456-7890']);
+        $this->assertDatabaseHas('settings', ['key' => 'store_instagram', 'value' => 'https://instagram.com/tokotoki']);
+        $this->assertDatabaseHas('settings', ['key' => 'app_logo_path', 'value' => '']);
+        Storage::disk('public')->assertMissing('settings/logos/old-logo.png');
+
+        // Invalid whatsapp / social URLs are rejected, logo stays removed state untouched.
+        $this->actingAs($admin)
+            ->post(route('admin.settings.update'), [
+                'app_name' => 'TOKOTOKI',
+                'store_whatsapp' => 'not-a-number!!!',
+                'store_instagram' => 'bukan-url',
+                'appearance_theme' => 'dark',
+            ])
+            ->assertSessionHasErrors(['store_whatsapp', 'store_instagram']);
+    }
+
     public function test_kasir_cannot_access_settings(): void
     {
         $kasir = User::factory()->create([
@@ -72,9 +112,10 @@ class SettingsModuleTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
+        // Unauthorized roles are redirected to their home page (existing design).
         $this->actingAs($kasir)
-            ->get(route('settings.index'))
-            ->assertForbidden();
+            ->get(route('admin.settings'))
+            ->assertRedirect(route('pos.index'));
     }
 
     public function test_maintenance_mode_blocks_kasir_but_not_super_admin(): void
@@ -99,11 +140,11 @@ class SettingsModuleTest extends TestCase
         );
 
         $this->actingAs($kasir)
-            ->get(route('dashboard'))
+            ->get(route('admin.dashboard'))
             ->assertRedirect(route('maintenance'));
 
         $this->actingAs($admin)
-            ->get(route('dashboard'))
+            ->get(route('admin.dashboard'))
             ->assertOk();
     }
 }

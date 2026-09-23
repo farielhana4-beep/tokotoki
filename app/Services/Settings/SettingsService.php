@@ -17,8 +17,6 @@ class SettingsService
      * Keys that should not be overwritten when the incoming value is empty.
      */
     private const PRESERVE_WHEN_EMPTY = [
-        'midtrans_server_key',
-        'midtrans_client_key',
     ];
 
     public function all(): array
@@ -62,7 +60,15 @@ class SettingsService
     {
         return [
             'branding' => [
-                'app_name' => $this->get('app_name', config('app.name', 'Koperasi POS')),
+                'app_name' => $this->get('app_name', config('app.name', 'TOKOTOKI')),
+                'store_tagline' => $this->get('store_tagline', 'Kerajinan kecil, dekorasi yang berarti.'),
+                'store_description' => $this->get('store_description', 'TOKOTOKI adalah toko kerajinan dan dekorasi yang menyediakan berbagai produk untuk melengkapi kebutuhan dekorasi, aksesoris, perlengkapan rumah, dan souvenir.'),
+                'store_short_description' => $this->get('store_short_description', 'Toko Kerajinan & Dekorasi'),
+                'store_whatsapp' => $this->get('store_whatsapp', ''),
+                'store_email' => $this->get('store_email', ''),
+                'store_location' => $this->get('store_location', ''),
+                'store_instagram' => $this->get('store_instagram', ''),
+                'store_tiktok' => $this->get('store_tiktok', ''),
                 'school_name' => $this->get('school_name', ''),
                 'school_address' => $this->get('school_address', ''),
                 'school_phone' => $this->get('school_phone', ''),
@@ -70,12 +76,12 @@ class SettingsService
                 'timezone' => $this->get('timezone', 'Asia/Jakarta'),
                 'currency' => strtoupper((string) $this->get('currency', 'IDR')),
                 'logo_url' => $this->imageUrl('app_logo_path', asset('images/brand-placeholder.svg')),
+                'logo_custom' => filled($this->get('app_logo_path')),
                 'favicon_url' => $this->imageUrl('favicon_path', asset('favicon.svg')),
             ],
             'pos' => [
                 'receipt_footer_text' => $this->get('receipt_footer_text', ''),
                 'auto_print_receipt' => $this->boolean('pos_auto_print_receipt', true),
-                'enable_qris' => $this->boolean('pos_enable_qris', true),
                 'show_low_stock_warning' => $this->boolean('pos_show_low_stock_warning', true),
             ],
             'mail' => [
@@ -106,7 +112,15 @@ class SettingsService
     {
         return [
             'branding' => [
-                'app_name' => $this->get('app_name', config('app.name', 'Koperasi POS')),
+                'app_name' => $this->get('app_name', config('app.name', 'TOKOTOKI')),
+                'store_tagline' => $this->get('store_tagline', 'Kerajinan kecil, dekorasi yang berarti.'),
+                'store_description' => $this->get('store_description', 'TOKOTOKI adalah toko kerajinan dan dekorasi yang menyediakan berbagai produk untuk melengkapi kebutuhan dekorasi, aksesoris, perlengkapan rumah, dan souvenir.'),
+                'store_short_description' => $this->get('store_short_description', 'Toko Kerajinan & Dekorasi'),
+                'store_whatsapp' => $this->get('store_whatsapp', ''),
+                'store_email' => $this->get('store_email', ''),
+                'store_location' => $this->get('store_location', ''),
+                'store_instagram' => $this->get('store_instagram', ''),
+                'store_tiktok' => $this->get('store_tiktok', ''),
                 'school_name' => $this->get('school_name', ''),
                 'school_address' => $this->get('school_address', ''),
                 'school_phone' => $this->get('school_phone', ''),
@@ -114,20 +128,13 @@ class SettingsService
                 'timezone' => $this->get('timezone', 'Asia/Jakarta'),
                 'currency' => strtoupper((string) $this->get('currency', 'IDR')),
                 'logo_url' => $this->imageUrl('app_logo_path', asset('images/brand-placeholder.svg')),
+                'logo_custom' => filled($this->get('app_logo_path')),
                 'favicon_url' => $this->imageUrl('favicon_path', asset('favicon.svg')),
             ],
             'pos' => [
                 'receipt_footer_text' => $this->get('receipt_footer_text', ''),
                 'auto_print_receipt' => $this->boolean('pos_auto_print_receipt', true),
-                'enable_qris' => $this->boolean('pos_enable_qris', true),
                 'show_low_stock_warning' => $this->boolean('pos_show_low_stock_warning', true),
-            ],
-            'midtrans' => [
-                'server_key_configured' => filled($this->get('midtrans_server_key')),
-                'client_key_configured' => filled($this->get('midtrans_client_key')),
-                'merchant_id' => $this->get('midtrans_merchant_id', ''),
-                'is_production' => $this->boolean('midtrans_is_production', false),
-                'client_key' => $this->get('midtrans_client_key', ''),
             ],
             'mail' => [
                 'from_name' => $this->get('mail_from_name', config('mail.from.name')),
@@ -173,11 +180,12 @@ class SettingsService
                 ? 'settings/favicons'
                 : 'settings/logos';
 
-            if (filled($currentPath)) {
+            // Store the new file first; only delete the old one after success.
+            $storedPath = $file->storePublicly($directory, 'public');
+
+            if (filled($currentPath) && $currentPath !== $storedPath) {
                 Storage::disk('public')->delete($currentPath);
             }
-
-            $storedPath = $file->storePublicly($directory, 'public');
 
             $this->persist($key, $storedPath, $actor?->id, 'file');
         }
@@ -185,19 +193,17 @@ class SettingsService
         Cache::forget(self::CACHE_KEY);
     }
 
-    public function midtrans(): array
+    public function removeFile(string $key, ?User $actor = null): void
     {
-        $isProduction = $this->boolean('midtrans_is_production', config('midtrans.is_production', false));
+        $currentPath = $this->get($key);
 
-        return [
-            'server_key' => (string) $this->get('midtrans_server_key', config('midtrans.server_key')),
-            'client_key' => (string) $this->get('midtrans_client_key', config('midtrans.client_key')),
-            'merchant_id' => (string) $this->get('midtrans_merchant_id', config('midtrans.merchant_id')),
-            'is_production' => $isProduction,
-            'snap_url' => $isProduction
-                ? 'https://app.midtrans.com/snap/v1'
-                : 'https://app.sandbox.midtrans.com/snap/v1',
-        ];
+        if (filled($currentPath)) {
+            Storage::disk('public')->delete($currentPath);
+        }
+
+        $this->persist($key, '', $actor?->id, 'file');
+
+        Cache::forget(self::CACHE_KEY);
     }
 
     private function persist(string $key, mixed $value, ?int $updatedBy = null, ?string $type = null): void
@@ -218,6 +224,14 @@ class SettingsService
         $groupMap = [
             'branding' => [
                 'app_name',
+                'store_tagline',
+                'store_description',
+                'store_short_description',
+                'store_whatsapp',
+                'store_email',
+                'store_location',
+                'store_instagram',
+                'store_tiktok',
                 'school_name',
                 'school_address',
                 'school_phone',
@@ -230,14 +244,7 @@ class SettingsService
             'pos' => [
                 'receipt_footer_text',
                 'pos_auto_print_receipt',
-                'pos_enable_qris',
                 'pos_show_low_stock_warning',
-            ],
-            'midtrans' => [
-                'midtrans_server_key',
-                'midtrans_client_key',
-                'midtrans_merchant_id',
-                'midtrans_is_production',
             ],
             'mail' => [
                 'mail_from_name',

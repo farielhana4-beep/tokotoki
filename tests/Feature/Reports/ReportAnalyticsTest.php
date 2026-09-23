@@ -65,7 +65,7 @@ class ReportAnalyticsTest extends TestCase
         ]);
 
         $this->actingAs($superAdmin)
-            ->get(route('reports.index', ['period' => 'monthly']))
+            ->get(route('admin.reports.index', ['period' => 'monthly']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Reports/Index')
@@ -91,7 +91,7 @@ class ReportAnalyticsTest extends TestCase
         $superAdmin = User::factory()->superAdmin()->create();
 
         $this->actingAs($superAdmin)
-            ->get(route('reports.export.pdf', ['period' => 'monthly']))
+            ->get(route('admin.reports.export.pdf', ['period' => 'monthly']))
             ->assertOk()
             ->assertDownload();
 
@@ -105,7 +105,7 @@ class ReportAnalyticsTest extends TestCase
         $superAdmin = User::factory()->superAdmin()->create();
 
         $this->actingAs($superAdmin)
-            ->get(route('reports.export.excel', ['period' => 'monthly']))
+            ->get(route('admin.reports.export.excel', ['period' => 'monthly']))
             ->assertOk()
             ->assertDownload();
 

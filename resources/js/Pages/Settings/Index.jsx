@@ -56,6 +56,14 @@ export default function Index({ settings }) {
 
     const { data, setData, post, processing, errors } = useForm({
         app_name: settings.branding.app_name ?? '',
+        store_tagline: settings.branding.store_tagline ?? '',
+        store_description: settings.branding.store_description ?? '',
+        store_short_description: settings.branding.store_short_description ?? '',
+        store_whatsapp: settings.branding.store_whatsapp ?? '',
+        store_email: settings.branding.store_email ?? '',
+        store_location: settings.branding.store_location ?? '',
+        store_instagram: settings.branding.store_instagram ?? '',
+        store_tiktok: settings.branding.store_tiktok ?? '',
         school_name: settings.branding.school_name ?? '',
         school_address: settings.branding.school_address ?? '',
         school_phone: settings.branding.school_phone ?? '',
@@ -64,12 +72,7 @@ export default function Index({ settings }) {
         currency: settings.branding.currency ?? 'IDR',
         receipt_footer_text: settings.pos.receipt_footer_text ?? '',
         pos_auto_print_receipt: settings.pos.auto_print_receipt ?? true,
-        pos_enable_qris: settings.pos.enable_qris ?? true,
         pos_show_low_stock_warning: settings.pos.show_low_stock_warning ?? true,
-        midtrans_server_key: '',
-        midtrans_client_key: '',
-        midtrans_merchant_id: settings.midtrans.merchant_id ?? '',
-        midtrans_is_production: settings.midtrans.is_production ?? false,
         mail_from_name: settings.mail?.from_name ?? '',
         mail_from_address: settings.mail?.from_address ?? '',
         mail_reply_to: settings.mail?.reply_to ?? '',
@@ -82,24 +85,25 @@ export default function Index({ settings }) {
         appearance_theme: settings.appearance.theme_mode ?? 'dark',
         system_maintenance_enabled: settings.system.maintenance_enabled ?? false,
         app_logo: null,
+        remove_app_logo: false,
         favicon: null,
     });
 
     const hasBrandLogo = Boolean(settings.branding.logo_url);
+    const hasCustomLogo = Boolean(settings.branding.logo_custom);
     const hasFavicon = Boolean(settings.branding.favicon_url);
     const darkModeEnabled = data.appearance_theme !== 'light';
 
     const submit = (event) => {
         event.preventDefault();
 
-        post(route('settings.update'), {
+        post(route('admin.settings.update'), {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
                 setData('app_logo', null);
+                setData('remove_app_logo', false);
                 setData('favicon', null);
-                setData('midtrans_server_key', '');
-                setData('midtrans_client_key', '');
             },
         });
     };
@@ -129,10 +133,10 @@ export default function Index({ settings }) {
                             </div>
 
                             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                                Control branding, POS behavior, Midtrans, and system maintenance from one clean panel.
+                                Control branding, POS behavior, and system maintenance from one clean panel.
                             </h2>
                             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                                Update the cooperative identity, manage receipts, fine-tune cashier operations, and keep the platform safe with role-aware controls.
+                                Update the store identity, manage receipts, fine-tune cashier operations, and keep the platform safe with role-aware controls.
                             </p>
                         </div>
 
@@ -150,8 +154,8 @@ export default function Index({ settings }) {
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                     <form onSubmit={submit} className="space-y-6">
                         <SectionCard
-                            title="Branding and school information"
-                            description="Set the app name, school identity, and upload the brand logo and favicon used across the dashboard."
+                            title="Branding and store information"
+                            description="Set the app name, store identity, and upload the brand logo and favicon used across the dashboard."
                         >
                             <div className="grid gap-6 xl:grid-cols-2">
                                 <FileUploadCard
@@ -161,8 +165,19 @@ export default function Index({ settings }) {
                                     file={data.app_logo}
                                     setFile={(file) => setData('app_logo', file)}
                                     accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                                    helpText="Square ratio recommended. JPG, PNG, WebP, or SVG. Max 2 MB."
+                                    helpText="Square or transparent logo recommended. JPG, PNG, WebP, or SVG. Max 2 MB."
                                 />
+                                {hasCustomLogo ? (
+                                    <label className="mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300 transition hover:bg-white/10">
+                                        <input
+                                            type="checkbox"
+                                            checked={Boolean(data.remove_app_logo)}
+                                            onChange={(event) => setData('remove_app_logo', event.target.checked)}
+                                            className="h-4 w-4 rounded border-white/20 bg-slate-950 text-cyan-400 focus:ring-cyan-400/40"
+                                        />
+                                        <span>Hapus logo tersimpan <span className="text-slate-500">(kembali ke placeholder)</span></span>
+                                    </label>
+                                ) : null}
 
                                 <FileUploadCard
                                     label="Favicon"
@@ -180,12 +195,40 @@ export default function Index({ settings }) {
                                     <Input
                                         value={data.app_name}
                                         onChange={(event) => setData('app_name', event.target.value)}
-                                        placeholder="Koperasi POS"
+                                        placeholder="TOKOTOKI"
                                     />
                                     {errors.app_name ? <p className="mt-2 text-sm text-red-300">{errors.app_name}</p> : null}
                                 </Field>
 
-                                <Field label="School name" description="Shown in receipts and admin branding.">
+                                <Field label="Store tagline" description="Short tagline shown in the storefront navbar and hero.">
+                                    <Input
+                                        value={data.store_tagline}
+                                        onChange={(event) => setData('store_tagline', event.target.value)}
+                                        placeholder="Kerajinan kecil, dekorasi yang berarti."
+                                    />
+                                    {errors.store_tagline ? <p className="mt-2 text-sm text-red-300">{errors.store_tagline}</p> : null}
+                                </Field>
+
+                                <Field label="Store description" description="Short description shown on the storefront home page.">
+                                    <Textarea
+                                        rows={3}
+                                        value={data.store_description}
+                                        onChange={(event) => setData('store_description', event.target.value)}
+                                        placeholder="TOKOTOKI adalah toko kerajinan dan dekorasi yang menyediakan berbagai produk..."
+                                    />
+                                    {errors.store_description ? <p className="mt-2 text-sm text-red-300">{errors.store_description}</p> : null}
+                                </Field>
+
+                                <Field label="Short description" description="Compact label shown under the store name, e.g. in the navbar and footer.">
+                                    <Input
+                                        value={data.store_short_description}
+                                        onChange={(event) => setData('store_short_description', event.target.value)}
+                                        placeholder="Toko Kerajinan & Dekorasi"
+                                    />
+                                    {errors.store_short_description ? <p className="mt-2 text-sm text-red-300">{errors.store_short_description}</p> : null}
+                                </Field>
+
+                                <Field label="Store name" description="Shown in receipts and admin branding.">
                                     <Input
                                         value={data.school_name}
                                         onChange={(event) => setData('school_name', event.target.value)}
@@ -194,26 +237,26 @@ export default function Index({ settings }) {
                                     {errors.school_name ? <p className="mt-2 text-sm text-red-300">{errors.school_name}</p> : null}
                                 </Field>
 
-                                <Field label="School address" description="Used on receipts and internal reports.">
+                                <Field label="Store address" description="Used on receipts and internal reports.">
                                     <Textarea
                                         rows={4}
                                         value={data.school_address}
                                         onChange={(event) => setData('school_address', event.target.value)}
-                                        placeholder="Jl. Pendidikan No. 1"
+                                        placeholder="Alamat toko (opsional)"
                                     />
                                     {errors.school_address ? <p className="mt-2 text-sm text-red-300">{errors.school_address}</p> : null}
                                 </Field>
 
                                 <div className="grid gap-5">
-                                    <Field label="School phone">
+                                    <Field label="Store phone">
                                         <Input
                                             value={data.school_phone}
                                             onChange={(event) => setData('school_phone', event.target.value)}
-                                            placeholder="0812-3456-7890"
+                                            placeholder="08xxxxxxxxxx"
                                         />
                                     </Field>
 
-                                    <Field label="School email">
+                                    <Field label="Store email">
                                         <Input
                                             type="email"
                                             value={data.school_email}
@@ -243,6 +286,70 @@ export default function Index({ settings }) {
                         </SectionCard>
 
                         <SectionCard
+                            title="Kontak toko"
+                            description="Contact details shown on the public storefront. Leave a field empty to hide it."
+                        >
+                            <div className="grid gap-5 lg:grid-cols-2">
+                                <Field label="WhatsApp" description="Indonesian number, e.g. 0812xxxxxxx or +62812xxxxxxx. Shows the Hubungi Kami button when filled.">
+                                    <Input
+                                        value={data.store_whatsapp}
+                                        onChange={(event) => setData('store_whatsapp', event.target.value)}
+                                        placeholder="08xxxxxxxxxx"
+                                    />
+                                    {errors.store_whatsapp ? <p className="mt-2 text-sm text-red-300">{errors.store_whatsapp}</p> : null}
+                                </Field>
+
+                                <Field label="Email toko" description="Shown in the storefront footer when filled.">
+                                    <Input
+                                        type="email"
+                                        value={data.store_email}
+                                        onChange={(event) => setData('store_email', event.target.value)}
+                                        placeholder="toko@contoh.id"
+                                    />
+                                    {errors.store_email ? <p className="mt-2 text-sm text-red-300">{errors.store_email}</p> : null}
+                                </Field>
+
+                                <div className="lg:col-span-2">
+                                    <Field label="Lokasi" description="Short location text, e.g. city name. Shown in the footer when filled.">
+                                        <Input
+                                            value={data.store_location}
+                                            onChange={(event) => setData('store_location', event.target.value)}
+                                            placeholder="Kota, Provinsi"
+                                        />
+                                        {errors.store_location ? <p className="mt-2 text-sm text-red-300">{errors.store_location}</p> : null}
+                                    </Field>
+                                </div>
+                            </div>
+                        </SectionCard>
+
+                        <SectionCard
+                            title="Media sosial"
+                            description="Social links shown in the storefront footer. Empty fields are hidden automatically."
+                        >
+                            <div className="grid gap-5 lg:grid-cols-2">
+                                <Field label="Instagram" description="Full URL, e.g. https://instagram.com/namatoko.">
+                                    <Input
+                                        type="url"
+                                        value={data.store_instagram}
+                                        onChange={(event) => setData('store_instagram', event.target.value)}
+                                        placeholder="https://instagram.com/..."
+                                    />
+                                    {errors.store_instagram ? <p className="mt-2 text-sm text-red-300">{errors.store_instagram}</p> : null}
+                                </Field>
+
+                                <Field label="TikTok" description="Full URL, e.g. https://tiktok.com/@namatoko.">
+                                    <Input
+                                        type="url"
+                                        value={data.store_tiktok}
+                                        onChange={(event) => setData('store_tiktok', event.target.value)}
+                                        placeholder="https://tiktok.com/@..."
+                                    />
+                                    {errors.store_tiktok ? <p className="mt-2 text-sm text-red-300">{errors.store_tiktok}</p> : null}
+                                </Field>
+                            </div>
+                        </SectionCard>
+
+                        <SectionCard
                             title="POS settings"
                             description="Tune the cashier behavior, receipt output, and stock warning visibility."
                         >
@@ -253,14 +360,6 @@ export default function Index({ settings }) {
                                     checked={Boolean(data.pos_auto_print_receipt)}
                                     onChange={(value) => setData('pos_auto_print_receipt', value)}
                                     name="pos_auto_print_receipt"
-                                />
-
-                                <ToggleSwitch
-                                    label="Enable QRIS"
-                                    description="Allow Midtrans QRIS payments at checkout."
-                                    checked={Boolean(data.pos_enable_qris)}
-                                    onChange={(value) => setData('pos_enable_qris', value)}
-                                    name="pos_enable_qris"
                                 />
 
                                 <ToggleSwitch
@@ -286,72 +385,6 @@ export default function Index({ settings }) {
                         </SectionCard>
 
                         <SectionCard
-                            title="Midtrans configuration"
-                            description="Secure payment gateway settings for QRIS and future online payment flows."
-                        >
-                            <div className="grid gap-5 lg:grid-cols-2">
-                                <Field
-                                    label="Server key"
-                                    description={settings.midtrans.server_key_configured ? 'Already configured. Leave blank to keep the current key.' : 'Enter your Midtrans server key.'}
-                                >
-                                    <Input
-                                        type="password"
-                                        value={data.midtrans_server_key}
-                                        onChange={(event) => setData('midtrans_server_key', event.target.value)}
-                                        placeholder={settings.midtrans.server_key_configured ? 'Configured' : 'Enter server key'}
-                                    />
-                                    {errors.midtrans_server_key ? <p className="mt-2 text-sm text-red-300">{errors.midtrans_server_key}</p> : null}
-                                </Field>
-
-                                <Field
-                                    label="Client key"
-                                    description={settings.midtrans.client_key_configured ? 'Already configured. Leave blank to keep the current key.' : 'Enter your Midtrans client key.'}
-                                >
-                                    <Input
-                                        type="password"
-                                        value={data.midtrans_client_key}
-                                        onChange={(event) => setData('midtrans_client_key', event.target.value)}
-                                        placeholder={settings.midtrans.client_key_configured ? 'Configured' : 'Enter client key'}
-                                    />
-                                    {errors.midtrans_client_key ? <p className="mt-2 text-sm text-red-300">{errors.midtrans_client_key}</p> : null}
-                                </Field>
-
-                                <Field label="Merchant ID">
-                                    <Input
-                                        value={data.midtrans_merchant_id}
-                                        onChange={(event) => setData('midtrans_merchant_id', event.target.value)}
-                                        placeholder="Merchant ID"
-                                    />
-                                </Field>
-
-                                <div className="space-y-4">
-                                    <ToggleSwitch
-                                        label="Production mode"
-                                        description="Use the production Midtrans endpoints for live transactions."
-                                        checked={Boolean(data.midtrans_is_production)}
-                                        onChange={(value) => setData('midtrans_is_production', value)}
-                                        name="midtrans_is_production"
-                                    />
-
-                                    <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                                        <div className="text-sm font-semibold text-white">Gateway status</div>
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            <Badge tone={settings.midtrans.server_key_configured ? 'emerald' : 'amber'}>
-                                                {settings.midtrans.server_key_configured ? 'Server key set' : 'Server key empty'}
-                                            </Badge>
-                                            <Badge tone={settings.midtrans.client_key_configured ? 'emerald' : 'amber'}>
-                                                {settings.midtrans.client_key_configured ? 'Client key set' : 'Client key empty'}
-                                            </Badge>
-                                            <Badge tone={data.midtrans_is_production ? 'amber' : 'cyan'}>
-                                                {data.midtrans_is_production ? 'Production' : 'Sandbox'}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </SectionCard>
-
-                        <SectionCard
                             title="Mail and notifications"
                             description="Set sender identity and the inbox that receives operational alerts."
                         >
@@ -360,7 +393,7 @@ export default function Index({ settings }) {
                                     <Input
                                         value={data.mail_from_name}
                                         onChange={(event) => setData('mail_from_name', event.target.value)}
-                                        placeholder="Koperasi POS"
+                                        placeholder="TOKOTOKI"
                                     />
                                 </Field>
 
@@ -494,7 +527,7 @@ export default function Index({ settings }) {
                                 <div>
                                     <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Preview</p>
                                     <h3 className="mt-1 text-lg font-semibold text-white">{settings.branding.app_name}</h3>
-                                    <p className="text-sm text-slate-400">{settings.branding.school_name || 'No school name set'}</p>
+                                    <p className="text-sm text-slate-400">{settings.branding.school_name || 'No store name set'}</p>
                                 </div>
                             </div>
 
@@ -522,7 +555,7 @@ export default function Index({ settings }) {
                         <div className="rounded-[1.75rem] border border-cyan-400/20 bg-cyan-400/10 p-6 text-cyan-50 shadow-2xl shadow-cyan-950/10">
                             <p className="text-xs uppercase tracking-[0.22em] text-cyan-100/70">Security note</p>
                             <p className="mt-3 text-sm leading-6 text-cyan-50/90">
-                                Midtrans secret fields are intentionally hidden. Leave them blank to keep the current keys when saving other settings.
+                                Cash payments are processed locally. Only Super Admin accounts can change these settings.
                             </p>
                         </div>
                     </aside>

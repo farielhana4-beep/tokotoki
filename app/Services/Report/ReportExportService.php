@@ -21,7 +21,7 @@ class ReportExportService
             'periodLabel' => $period->label(),
         ])->setPaper('a4', 'landscape');
 
-        $filename = sprintf('koperasi-pos-report-%s.pdf', $period->value);
+        $filename = sprintf('tokotoki-report-%s.pdf', $period->value);
 
         return response()->streamDownload(
             fn () => print($pdf->output()),
@@ -40,7 +40,7 @@ class ReportExportService
         $this->buildCashierSheet($spreadsheet, $report);
 
         $filename = storage_path(sprintf(
-            'app/reports/koperasi-pos-report-%s-%s.xlsx',
+            'app/reports/tokotoki-report-%s-%s.xlsx',
             $period->value,
             now()->format('Ymd_His'),
         ));
@@ -60,7 +60,7 @@ class ReportExportService
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Summary');
 
-        $sheet->setCellValue('A1', 'Koperasi POS Report');
+        $sheet->setCellValue('A1', 'TOKOTOKI Report');
         $sheet->setCellValue('A2', sprintf('%s Period Report', $period->label()));
         $sheet->setCellValue('A3', 'Range');
         $sheet->setCellValue('B3', $report['range']['start'].' - '.$report['range']['end']);

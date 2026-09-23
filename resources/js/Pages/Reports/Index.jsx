@@ -104,7 +104,7 @@ export default function Index({ periods, selectedPeriod, report, exports }) {
     const salesTrend = report.timeline;
 
     const updatePeriod = (period) => {
-        router.get(route('reports.index'), { period }, { preserveScroll: true, replace: true });
+        router.get(route('admin.reports.index'), { period }, { preserveScroll: true, replace: true });
     };
 
     return (

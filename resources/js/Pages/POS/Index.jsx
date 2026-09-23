@@ -268,8 +268,6 @@ export default function Index({ products, categories, summary }) {
     const barcodeDebounceRef = useRef(null);
     const recentTransactionStatusRef = useRef(new Map());
     const currency = settings?.branding?.currency ?? 'IDR';
-    const midtransClientKey = settings?.midtrans?.client_key ?? '';
-    const isProduction = Boolean(settings?.midtrans?.is_production);
 
     const subtotal = useMemo(() => {
         return cart.reduce((accumulator, item) => {
@@ -300,13 +298,6 @@ export default function Index({ products, categories, summary }) {
                 .length,
         [safeProducts],
     );
-    const qrisReadyCount = useMemo(
-        () =>
-            safeProducts.filter((product) => product.stock_status !== 'critical')
-                .length,
-        [safeProducts],
-    );
-
     const filteredProducts = useMemo(() => {
         const query = search.trim().toLowerCase();
 
@@ -328,15 +319,6 @@ export default function Index({ products, categories, summary }) {
     const cartCount = cart.length;
     const currentPaymentLabel = paymentModal ?? 'cash';
     const recentTransactionItems = safeArray(recentTransactions);
-    const pendingQrisCount = useMemo(
-        () =>
-            recentTransactionItems.filter(
-                (item) =>
-                    item.payment_method === 'qris' &&
-                    item.payment_status === 'pending',
-            ).length,
-        [recentTransactionItems],
-    );
 
     useEffect(() => {
         barcodeInputRef.current?.focus();
@@ -366,11 +348,6 @@ export default function Index({ products, categories, summary }) {
             if (event.key === 'F2') {
                 event.preventDefault();
                 openCashModal();
-            }
-
-            if (event.key === 'F4') {
-                event.preventDefault();
-                openQrisModal();
             }
         };
 
@@ -409,81 +386,11 @@ export default function Index({ products, categories, summary }) {
     }, [recentTransactionItems]);
 
     useEffect(() => {
-        if (!pendingQrisCount) {
-            return undefined;
-        }
-
-        const timer = window.setInterval(() => {
-            router.reload({
-                only: ['recentTransactions'],
-                preserveScroll: true,
-                preserveState: true,
-            });
-        }, 30000);
-
-        return () => window.clearInterval(timer);
-    }, [pendingQrisCount]);
-
-    useEffect(() => {
         if (flash?.receipt) {
             setReceipt(flash.receipt);
             setReceiptOpen(true);
         }
     }, [flash?.receipt]);
-
-    useEffect(() => {
-        const receiptPayload = flash?.receipt;
-        const token = receiptPayload?.snap_token;
-
-        if (
-            !receiptPayload ||
-            receiptPayload.payment_method !== 'qris' ||
-            receiptPayload.payment_status !== 'pending' ||
-            !token ||
-            !midtransClientKey
-        ) {
-            return undefined;
-        }
-
-        const scriptId = 'midtrans-snap-js';
-
-        const openSnap = () => {
-            const snap = window.snap;
-
-            if (!snap?.pay) {
-                return;
-            }
-
-            snap.pay(token, {
-                onSuccess: () => window.location.reload(),
-                onPending: () => window.location.reload(),
-                onError: () => window.location.reload(),
-                onClose: () => {},
-            });
-        };
-
-        if (window.snap?.pay) {
-            openSnap();
-            return undefined;
-        }
-
-        const existingScript = document.getElementById(scriptId);
-        if (existingScript) {
-            existingScript.addEventListener('load', openSnap, { once: true });
-            return () => existingScript.removeEventListener('load', openSnap);
-        }
-
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.src = `https://${isProduction ? 'app.midtrans.com' : 'app.sandbox.midtrans.com'}/snap/snap.js`;
-        script.setAttribute('data-client-key', midtransClientKey);
-        script.addEventListener('load', openSnap, { once: true });
-        document.body.appendChild(script);
-
-        return () => {
-            script.removeEventListener('load', openSnap);
-        };
-    }, [flash?.receipt, isProduction, midtransClientKey]);
 
     const focusBarcodeInput = () => {
         barcodeInputRef.current?.focus();
@@ -681,15 +588,6 @@ export default function Index({ products, categories, summary }) {
         setPaymentModal('cash');
     };
 
-    const openQrisModal = () => {
-        if (!cartCount) {
-            return;
-        }
-
-        setCashReceived('');
-        setPaymentModal('qris');
-    };
-
     const openCardModal = () => {
         if (!cartCount) {
             return;
@@ -809,13 +707,6 @@ export default function Index({ products, categories, summary }) {
             tone: 'from-amber-400 to-orange-500',
             icon: <ReceiptIcon className="h-5 w-5" />,
         },
-        {
-            label: 'QRIS Ready',
-            value: qrisReadyCount,
-            note: 'Usable in fast checkout',
-            tone: 'from-emerald-400 to-teal-500',
-            icon: <ScanIcon className="h-5 w-5" />,
-        },
     ];
 
     return (
@@ -834,20 +725,17 @@ export default function Index({ products, categories, summary }) {
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
                                 F2 Cash
                             </span>
-                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
-                                F4 QRIS
-                            </span>
                         </div>
 
                         <div className="space-y-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
-                                School koperasi POS
+                                TOKOTOKI Admin
                             </p>
                             <h2 className="max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                                 Premium cashier workspace built for speed, clarity, and confidence.
                             </h2>
                             <p className="max-w-3xl text-sm leading-7 text-slate-300">
-                                Search by barcode, filter by category, preview receipts, and check out with cash or Midtrans QRIS in a polished glass UI.
+                                Search by barcode, filter by category, preview receipts, and check out with cash in a polished glass UI.
                             </p>
                         </div>
 
@@ -858,13 +746,6 @@ export default function Index({ products, categories, summary }) {
                                 helper="Inspect totals before saving"
                                 onClick={previewReceipt}
                                 tone="cyan"
-                            />
-                            <QuickAction
-                                icon={<ScanIcon className="h-5 w-5" />}
-                                label="QRIS Checkout"
-                                helper="Open payment modal instantly"
-                                onClick={openQrisModal}
-                                tone="violet"
                             />
                             <QuickAction
                                 icon={<SparklesIcon className="h-5 w-5" />}
@@ -1054,7 +935,6 @@ export default function Index({ products, categories, summary }) {
                                 onClearCart={clearCart}
                                 onPreviewReceipt={previewReceipt}
                                 onOpenCash={openCashModal}
-                                onOpenQris={openQrisModal}
                                 onOpenCard={openCardModal}
                                 onSetDiscount={setDiscount}
                             />
@@ -1147,7 +1027,6 @@ export default function Index({ products, categories, summary }) {
                     onClose={() => setPaymentModal(null)}
                     onConfirm={submitTransaction}
                     processing={saving}
-                    currency={currency}
                 />
 
                 <ReceiptModal

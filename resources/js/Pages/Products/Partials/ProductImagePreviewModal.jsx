@@ -34,7 +34,7 @@ function StockBadge({ stockStatus }) {
     );
 }
 
-export default function ProductImagePreviewModal({ show, product, onClose }) {
+export default function ProductImagePreviewModal({ show, product, onClose, onEdit }) {
     const imageUrl = product?.image_url || PLACEHOLDER_IMAGE;
     const isActive = (product?.status ?? 'active') === 'active';
 
@@ -155,6 +155,28 @@ export default function ProductImagePreviewModal({ show, product, onClose }) {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="shrink-0 border-t border-white/10 px-6 py-4">
+                    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                        >
+                            Close
+                        </button>
+                        {typeof onEdit === 'function' ? (
+                            <button
+                                type="button"
+                                onClick={() => onEdit(product)}
+                                disabled={!product}
+                                className="rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Edit Product
+                            </button>
+                        ) : null}
                     </div>
                 </div>
             </div>

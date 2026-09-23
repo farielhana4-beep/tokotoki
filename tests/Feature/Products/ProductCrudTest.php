@@ -28,7 +28,7 @@ class ProductCrudTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get(route('products.index'))
+            ->get(route('admin.products.index'))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Products/Index')
@@ -44,7 +44,7 @@ class ProductCrudTest extends TestCase
         $user = User::factory()->superAdmin()->create();
         Storage::fake('public');
 
-        $this->actingAs($user)->post(route('products.store'), [
+        $this->actingAs($user)->post(route('admin.products.store'), [
             'barcode' => '8991234567890',
             'name' => 'Mineral Water',
             'image' => UploadedFile::fake()->image('water.png', 1200, 1200)->size(800),
@@ -52,14 +52,15 @@ class ProductCrudTest extends TestCase
             'selling_price' => 5000,
             'stock' => 50,
             'min_stock' => 10,
-        ])->assertRedirect(route('products.index'));
+            'status' => 'active',
+        ])->assertRedirect(route('admin.products.index'));
 
         $product = Product::query()->where('barcode', '8991234567890')->firstOrFail();
         $originalImagePath = $product->image_path;
 
         Storage::disk('public')->assertExists($originalImagePath);
 
-        $this->actingAs($user)->put(route('products.update', $product), [
+        $this->actingAs($user)->put(route('admin.products.update', $product), [
             'barcode' => '8991234567890',
             'name' => 'Mineral Water 600ml',
             'image' => UploadedFile::fake()->image('water-new.png', 1200, 1200)->size(700),
@@ -67,7 +68,8 @@ class ProductCrudTest extends TestCase
             'selling_price' => 5500,
             'stock' => 40,
             'min_stock' => 8,
-        ])->assertRedirect(route('products.index'));
+            'status' => 'active',
+        ])->assertRedirect(route('admin.products.index'));
 
         $product->refresh();
         Storage::disk('public')->assertMissing($originalImagePath);
@@ -80,8 +82,8 @@ class ProductCrudTest extends TestCase
             'min_stock' => 8,
         ]);
 
-        $this->actingAs($user)->delete(route('products.destroy', $product))
-            ->assertRedirect(route('products.index'));
+        $this->actingAs($user)->delete(route('admin.products.destroy', $product))
+            ->assertRedirect(route('admin.products.index'));
 
         $this->assertDatabaseMissing('products', [
             'id' => $product->id,
@@ -92,7 +94,7 @@ class ProductCrudTest extends TestCase
     {
         $user = User::factory()->superAdmin()->create();
 
-        $this->actingAs($user)->post(route('products.store'), [
+        $this->actingAs($user)->post(route('admin.products.store'), [
             'barcode' => '8991234567999',
             'name' => 'Invalid Image Product',
             'image' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
@@ -126,7 +128,7 @@ class ProductCrudTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get(route('products.index', ['search' => 'Notebook']))
+            ->get(route('admin.products.index', ['search' => 'Notebook']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Products/Index')

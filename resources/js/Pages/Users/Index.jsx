@@ -22,7 +22,7 @@ export default function Index({ users }) {
     const currentUserId = auth.user?.id;
 
     const sendReset = (userId) => {
-        router.post(route('users.password-reset', userId), {}, {
+        router.post(route('admin.users.password-reset', userId), {}, {
             preserveScroll: true,
         });
     };

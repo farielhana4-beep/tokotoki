@@ -3,9 +3,9 @@ import { usePage } from '@inertiajs/react';
 
 function Toast({ tone = 'success', title, message }) {
     const tones = {
-        success: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200',
-        error: 'border-rose-400/20 bg-rose-400/10 text-rose-200',
-        info: 'border-cyan-400/20 bg-cyan-400/10 text-cyan-200',
+        success: 'border-emerald-700 bg-emerald-950/95 text-emerald-50',
+        error: 'border-rose-800 bg-rose-950/95 text-rose-50',
+        info: 'border-slate-700 bg-slate-900/95 text-slate-50',
     };
 
     return (

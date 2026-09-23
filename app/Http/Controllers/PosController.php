@@ -9,7 +9,6 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Services\POS\TransactionService;
-use App\Services\Payment\MidtransService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,7 +59,7 @@ class PosController extends Controller
         ]);
     }
 
-    public function checkout(PosCheckoutRequest $request, TransactionService $transactionService, MidtransService $midtransService): RedirectResponse
+    public function checkout(PosCheckoutRequest $request, TransactionService $transactionService): RedirectResponse
     {
         $user = $request->user();
         $validated = $request->validated();
@@ -83,7 +82,6 @@ class PosController extends Controller
             $discount,
             $products,
             $transactionService,
-            $midtransService,
             $user
         ) {
             $items = $this->normalizeItems($validated['items']);
@@ -128,12 +126,10 @@ class PosController extends Controller
                 'tax_price' => $tax,
                 'discount_price' => $safeDiscount,
                 'total_price' => $total,
-                'cash_received' => $paymentMethod === PaymentMethod::Cash ? $cashReceived : null,
-                'change_amount' => $paymentMethod === PaymentMethod::Cash ? max($cashReceived - $total, 0) : 0,
+                'cash_received' => $cashReceived,
+                'change_amount' => max($cashReceived - $total, 0),
                 'payment_method' => $paymentMethod,
-                'payment_status' => $paymentMethod === PaymentMethod::Cash
-                    ? PaymentStatus::Paid
-                    : PaymentStatus::Pending,
+                'payment_status' => PaymentStatus::Paid,
             ])->save();
 
             foreach ($items as $item) {
@@ -146,10 +142,6 @@ class PosController extends Controller
                 ]);
 
                 $product->decrement('stock', $item['quantity']);
-            }
-
-            if ($paymentMethod === PaymentMethod::Qris) {
-                $midtransService->createQrisPayment($transaction);
             }
 
             $transaction->setRelation('details', $transaction->details()->with('product:id,barcode,name')->get());

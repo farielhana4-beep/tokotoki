@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PosCheckoutRequest;
 use App\Models\Product;
 use App\Models\Transaction;
-use App\Services\Payment\MidtransService;
 use App\Services\POS\TransactionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -61,7 +60,7 @@ class PosApiController extends Controller
         ]);
     }
 
-    public function checkout(PosCheckoutRequest $request, TransactionService $transactionService, MidtransService $midtransService): JsonResponse
+    public function checkout(PosCheckoutRequest $request, TransactionService $transactionService): JsonResponse
     {
         $user = $request->user();
         $validated = $request->validated();
@@ -84,7 +83,6 @@ class PosApiController extends Controller
             $discount,
             $products,
             $transactionService,
-            $midtransService,
             $user
         ) {
             $items = collect($validated['items'])
@@ -137,12 +135,10 @@ class PosApiController extends Controller
                 'tax_price' => $tax,
                 'discount_price' => $safeDiscount,
                 'total_price' => $total,
-                'cash_received' => $paymentMethod === PaymentMethod::Cash ? $cashReceived : null,
-                'change_amount' => $paymentMethod === PaymentMethod::Cash ? max($cashReceived - $total, 0) : 0,
+                'cash_received' => $cashReceived,
+                'change_amount' => max($cashReceived - $total, 0),
                 'payment_method' => $paymentMethod,
-                'payment_status' => $paymentMethod === PaymentMethod::Cash
-                    ? PaymentStatus::Paid
-                    : PaymentStatus::Pending,
+                'payment_status' => PaymentStatus::Paid,
             ])->save();
 
             foreach ($items as $item) {
@@ -155,10 +151,6 @@ class PosApiController extends Controller
                 ]);
 
                 $product->decrement('stock', $item['quantity']);
-            }
-
-            if ($paymentMethod === PaymentMethod::Qris) {
-                $midtransService->createQrisPayment($transaction);
             }
 
             $transaction->loadMissing(['details.product:id,barcode,name', 'user:id,name']);

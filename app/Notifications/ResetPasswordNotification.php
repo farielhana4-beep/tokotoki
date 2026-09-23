@@ -33,7 +33,7 @@ class ResetPasswordNotification extends Notification
         ]);
 
         return (new MailMessage)
-            ->subject('Reset your Koperasi POS password')
+            ->subject('Reset your TOKOTOKI password')
             ->markdown('emails.auth.reset-password', [
                 'name' => $notifiable->name,
                 'roleLabel' => $role?->label() ?? 'User',

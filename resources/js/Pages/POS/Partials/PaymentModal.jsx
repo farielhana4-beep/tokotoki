@@ -29,10 +29,8 @@ export default function PaymentModal({
     onClose,
     onConfirm,
     processing,
-    currency = 'IDR',
 }) {
     const isCash = mode === 'cash';
-    const isQris = mode === 'qris';
     const isCard = mode === 'card';
     const change = Math.max(Number(cashReceived || 0) - total, 0);
     const safeCart = safeArray(cart);
@@ -47,14 +45,12 @@ export default function PaymentModal({
             <div className="bg-slate-950 text-white">
                 <div className="border-b border-white/10 px-6 py-5">
                     <div className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">
-                        {isCash ? 'Cash Payment' : isQris ? 'QRIS Payment' : 'Card Payment'}
+                        {isCash ? 'Cash Payment' : 'Card Payment'}
                     </div>
                     <h3 className="mt-2 text-lg font-semibold">
                         {isCash
                             ? 'Confirm cash checkout'
-                            : isQris
-                                ? 'Confirm QRIS checkout'
-                                : 'Debit / Credit card coming soon'}
+                            : 'Debit / Credit card coming soon'}
                     </h3>
                     <p className="mt-1 text-sm text-slate-400">
                         Review the receipt summary before saving the transaction.
@@ -148,38 +144,6 @@ export default function PaymentModal({
                                     </span>
                                 </div>
                             </div>
-                        ) : isQris ? (
-                            <div className="rounded-[28px] border border-violet-400/20 bg-violet-400/10 p-4">
-                                <div className="text-sm font-semibold text-violet-200">
-                                    Midtrans Snap ready
-                                </div>
-                                <p className="mt-2 text-sm leading-6 text-slate-300">
-                                    After saving, the QRIS modal opens through Midtrans Snap and the payment status updates from the webhook.
-                                </p>
-                                <div className="mt-4 rounded-[24px] border border-white/10 bg-slate-950/50 p-4 text-sm text-slate-300">
-                                    <div className="text-xs uppercase tracking-[0.22em] text-slate-500">
-                                        Midtrans placeholder
-                                    </div>
-                                    <p className="mt-2">
-                                        A Snap token will be injected here once the backend returns a live QRIS token. Currency: {currency}.
-                                    </p>
-                                </div>
-                                <div className="mt-4 rounded-[24px] border border-dashed border-violet-300/30 bg-slate-950/60 p-4 text-center">
-                                    <div className="text-xs uppercase tracking-[0.22em] text-slate-500">
-                                        QR Code Area
-                                    </div>
-                                    <div className="mt-3 flex items-center justify-center">
-                                        <div className="grid h-36 w-36 grid-cols-6 gap-1 rounded-3xl bg-white p-3">
-                                            {Array.from({ length: 36 }).map((_, index) => (
-                                                <span
-                                                    key={index}
-                                                    className={`rounded-sm ${index % 3 === 0 || index % 5 === 0 ? 'bg-slate-950' : 'bg-slate-200'}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         ) : (
                             <div className="rounded-[28px] border border-dashed border-white/10 bg-white/[0.03] p-5">
                                 <div className="text-sm font-semibold text-white">
@@ -187,14 +151,14 @@ export default function PaymentModal({
                                 </div>
                                 <p className="mt-2 text-sm leading-6 text-slate-300">
                                     Debit and credit card processing is reserved for a future gateway integration.
-                                    Keep using cash or QRIS to complete sales.
+                                    Keep using cash to complete sales.
                                 </p>
                             </div>
                         )}
 
                         <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-slate-300">
                             <div className="font-semibold text-white">
-                                {isCash ? 'Cash checkout' : isQris ? 'QRIS checkout' : 'Card placeholder'}
+                                {isCash ? 'Cash checkout' : 'Card placeholder'}
                             </div>
                             <p className="mt-2">
                                 {isCard
@@ -221,9 +185,7 @@ export default function PaymentModal({
                                     ? 'Unavailable'
                                     : processing
                                     ? 'Saving...'
-                                    : isCash
-                                        ? 'Save Cash Payment'
-                                        : 'Save QRIS Payment'}
+                                    : 'Save Cash Payment'}
                             </PrimaryButton>
                         </div>
                     </div>

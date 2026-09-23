@@ -129,7 +129,7 @@ export default function Index({ products, filters, stats }) {
         event.preventDefault();
 
         router.get(
-            route('products.index'),
+            route('admin.products.index'),
             { search },
             {
                 preserveScroll: true,
@@ -249,7 +249,7 @@ export default function Index({ products, filters, stats }) {
                                     type="button"
                                     onClick={() => {
                                         setSearch('');
-                                        router.get(route('products.index'), {}, {
+                                        router.get(route('admin.products.index'), {}, {
                                             preserveScroll: true,
                                             preserveState: true,
                                             replace: true,
@@ -478,6 +478,15 @@ export default function Index({ products, filters, stats }) {
                 show={showPreview}
                 product={selectedProduct}
                 onClose={() => setShowPreview(false)}
+                onEdit={(product) => {
+                    const target = product ?? selectedProduct;
+
+                    setShowPreview(false);
+
+                    if (target) {
+                        openEdit(target);
+                    }
+                }}
             />
         </AuthenticatedLayout>
     );

@@ -98,7 +98,7 @@ class ProductController extends Controller
         Product::create($validated);
 
         return redirect()
-            ->route('products.index')
+            ->route('admin.products.index')
             ->with('success', 'Product created successfully.');
     }
 
@@ -118,7 +118,7 @@ class ProductController extends Controller
         $product->update($validated);
 
         return redirect()
-            ->route('products.index')
+            ->route('admin.products.index')
             ->with('success', 'Product updated successfully.');
     }
 
@@ -131,7 +131,7 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()
-            ->route('products.index')
+            ->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
     }
 

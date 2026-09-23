@@ -57,6 +57,7 @@ function openPrintableReceipt(receipt) {
                     <p class="muted">${escapeHtml(receipt?.created_at ?? '-')}</p>
                     <div class="line"></div>
                     <p style="font-size:13px;margin:0;">Cashier: ${escapeHtml(receipt?.cashier_name ?? '-')}</p>
+                    ${receipt?.source === 'store' ? `<p style="font-size:13px;margin:4px 0 0 0;">Source: Store</p><p style="font-size:13px;margin:4px 0 0 0;">Customer: ${escapeHtml(receipt?.customer_name ?? '-')}</p><p style="font-size:13px;margin:4px 0 0 0;">WhatsApp: ${escapeHtml(receipt?.customer_phone ?? '-')}</p>` : ''}
                     <p style="font-size:13px;margin:4px 0 0 0;">Payment: ${escapeHtml((receipt?.payment_method ?? '-').toUpperCase())}</p>
                     <p style="font-size:13px;margin:4px 0 0 0;">Status: ${escapeHtml((receipt?.payment_status ?? '-').toUpperCase())}</p>
                     <div class="line"></div>
@@ -187,7 +188,7 @@ export default function Index({
         event?.preventDefault?.();
 
         router.get(
-            route('transactions.index'),
+            route('admin.transactions.index'),
             {
                 search,
                 status,
@@ -350,7 +351,7 @@ export default function Index({
                                     setStatus('all');
                                     setPaymentMethod('all');
                                     setDate('');
-                                    router.get(route('transactions.index'), {}, { preserveScroll: true, replace: true });
+                                    router.get(route('admin.transactions.index'), {}, { preserveScroll: true, replace: true });
                                 }}
                                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                             >
@@ -391,7 +392,9 @@ export default function Index({
                                                     {transaction.invoice_number}
                                                 </div>
                                                 <div className="mt-1 text-xs text-slate-400">
-                                                    {transaction.cashier_name} · {transaction.created_at}
+                                                    {transaction.source === 'store'
+                                                        ? <>Store · {transaction.customer_name ?? '-'} · {transaction.customer_phone ?? '-'}</>
+                                                        : <>{transaction.cashier_name} · {transaction.created_at}</>}
                                                 </div>
                                             </div>
                                             <div className="flex flex-wrap gap-2">

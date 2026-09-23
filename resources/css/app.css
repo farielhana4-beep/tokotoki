@@ -20,6 +20,14 @@
         background: rgba(34, 211, 238, 0.25);
         color: #fff;
     }
+
+    /* One visible keyboard-focus style for every area (storefront, auth,
+       admin, POS). Uses a cyan outline that stays legible on both the
+       light store theme and the dark workspace theme. */
+    :focus-visible {
+        outline: 2px solid #22d3ee;
+        outline-offset: 2px;
+    }
 }
 
 @layer components {
