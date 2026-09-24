@@ -12,6 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway (and similar PaaS) terminates TLS at its edge proxy and
+        // forwards plain HTTP plus X-Forwarded-* headers. Trusting the proxy
+        // lets Laravel detect the real https scheme so asset()/route() URLs
+        // are generated correctly in production. Local requests carry no such
+        // headers, so http://tokotoki.test keeps working unchanged.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\EnsureApplicationIsAvailable::class,
