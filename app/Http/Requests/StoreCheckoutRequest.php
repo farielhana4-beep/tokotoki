@@ -19,7 +19,7 @@ class StoreCheckoutRequest extends FormRequest
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_phone' => ['required', 'string', 'min:8', 'max:30', 'regex:/^[0-9+()\-\s]+$/'],
             'customer_address' => ['required', 'string', 'max:1000'],
-            'payment_method' => ['required', Rule::in([PaymentMethod::Cash->value])],
+            'payment_method' => ['required', Rule::in([PaymentMethod::Cash->value, PaymentMethod::Transfer->value])],
         ];
     }
 

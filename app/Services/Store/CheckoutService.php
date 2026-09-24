@@ -72,7 +72,7 @@ class CheckoutService
                 'tax_price' => $tax,
                 'discount_price' => 0,
                 'total_price' => $total,
-                'payment_method' => PaymentMethod::Cash,
+                'payment_method' => PaymentMethod::from($customer['payment_method']),
                 'payment_status' => PaymentStatus::Pending,
                 'midtrans_snap_token' => null,
                 'cash_received' => null,

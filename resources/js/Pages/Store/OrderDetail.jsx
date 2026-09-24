@@ -52,7 +52,8 @@ export default function OrderDetail({ order }) {
                         <div><dt className="font-semibold text-stone-500">Telepon</dt><dd className="mt-0.5 break-words font-bold text-emerald-950">{order.customer_phone}</dd></div>
                         <div><dt className="font-semibold text-stone-500">Alamat / catatan</dt><dd className="mt-0.5 break-words text-stone-700">{order.customer_address}</dd></div>
                     </dl>
-                    <Link href={route('store.orders.index')} className="mt-6 block text-center text-sm font-bold text-emerald-800 underline decoration-amber-500 underline-offset-4">← Kembali ke Pesanan Saya</Link>
+                    <a href={route('store.orders.receipt', order.id)} download className="mt-6 block w-full rounded-xl bg-emerald-800 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-emerald-700">Cetak Struk (PDF)</a>
+                    <Link href={route('store.orders.index')} className="mt-4 block text-center text-sm font-bold text-emerald-800 underline decoration-amber-500 underline-offset-4">← Kembali ke Pesanan Saya</Link>
                 </aside>
             </section>
         </PublicLayout>

@@ -144,7 +144,8 @@ export default function Index({
     const [search, setSearch] = useState(filters.search ?? '');
     const [status, setStatus] = useState(filters.status ?? 'all');
     const [paymentMethod, setPaymentMethod] = useState(filters.payment_method ?? 'all');
-    const [date, setDate] = useState(filters.date ?? '');
+    const [dateFrom, setDateFrom] = useState(filters.date_from ?? '');
+    const [dateTo, setDateTo] = useState(filters.date_to ?? '');
     const [receiptOpen, setReceiptOpen] = useState(false);
     const [receipt, setReceipt] = useState(null);
 
@@ -169,16 +170,16 @@ export default function Index({
                 tone: 'from-emerald-400 to-teal-500',
             },
             {
-                label: 'Pending QRIS',
-                value: summary.qris ?? 0,
-                note: 'Waiting for Midtrans',
-                tone: 'from-violet-400 to-fuchsia-500',
-            },
-            {
                 label: 'Pending Orders',
                 value: summary.pending ?? 0,
                 note: 'Not yet settled',
                 tone: 'from-amber-400 to-orange-500',
+            },
+            {
+                label: 'Revenue',
+                value: formatCurrency(summary.revenue ?? 0),
+                note: 'Paid sales in filter',
+                tone: 'from-violet-400 to-fuchsia-500',
             },
         ],
         [summary],
@@ -193,7 +194,8 @@ export default function Index({
                 search,
                 status,
                 payment_method: paymentMethod,
-                date,
+                date_from: dateFrom,
+                date_to: dateTo,
             },
             {
                 preserveScroll: true,
@@ -276,7 +278,7 @@ export default function Index({
                 <section className="rounded-[32px] border border-white/10 bg-slate-900/75 p-5 shadow-2xl shadow-black/20 backdrop-blur">
                     <form
                         onSubmit={applyFilters}
-                        className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.8fr_0.6fr_auto]"
+                        className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.8fr_0.7fr_0.7fr_auto]"
                     >
                         <div>
                             <label className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
@@ -327,12 +329,25 @@ export default function Index({
 
                         <div>
                             <label className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                                Date
+                                Dari Tanggal
                             </label>
                             <input
                                 type="date"
-                                value={date}
-                                onChange={(event) => setDate(event.target.value)}
+                                value={dateFrom}
+                                onChange={(event) => setDateFrom(event.target.value)}
+                                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:border-cyan-400 focus:ring-cyan-400"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                                Sampai Tanggal
+                            </label>
+                            <input
+                                type="date"
+                                value={dateTo}
+                                min={dateFrom || undefined}
+                                onChange={(event) => setDateTo(event.target.value)}
                                 className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:border-cyan-400 focus:ring-cyan-400"
                             />
                         </div>
@@ -350,7 +365,8 @@ export default function Index({
                                     setSearch('');
                                     setStatus('all');
                                     setPaymentMethod('all');
-                                    setDate('');
+                                    setDateFrom('');
+                                    setDateTo('');
                                     router.get(route('admin.transactions.index'), {}, { preserveScroll: true, replace: true });
                                 }}
                                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -416,6 +432,18 @@ export default function Index({
                                             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                                                 Reopen
                                             </div>
+                                            {transaction.payment_status === 'pending' ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        router.patch(route('admin.transactions.status', transaction.id), { payment_status: 'paid' }, { preserveScroll: true });
+                                                    }}
+                                                    className="mt-2 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-emerald-950 transition hover:bg-emerald-400"
+                                                >
+                                                    Tandai Lunas
+                                                </button>
+                                            ) : null}
                                         </div>
                                     </button>
                                 ))}
@@ -438,6 +466,8 @@ export default function Index({
                 receipt={receipt}
                 onPrint={() => openPrintableReceipt(receipt)}
                 onClose={() => setReceiptOpen(false)}
+                pdfUrl={receipt?.id ? route('admin.transactions.receipt', receipt.id) : null}
+                onMarkPaid={receipt?.id && receipt?.payment_status === 'pending' ? () => router.patch(route('admin.transactions.status', receipt.id), { payment_status: 'paid' }, { preserveScroll: true }) : null}
             />
         </AuthenticatedLayout>
     );

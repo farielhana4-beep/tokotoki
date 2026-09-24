@@ -19,14 +19,20 @@ const firstErrorMessage = (errors) => {
 export default function ProductDetail({ product }) {
     const brand = useBrand();
     const [adding, setAdding] = useState(false);
+    const [quantity, setQuantity] = useState(1);
+    const maxQuantity = Math.max(product.stock ?? 0, 1);
+
+    const decrease = () => setQuantity((value) => Math.max(1, value - 1));
+    const increase = () => setQuantity((value) => Math.min(maxQuantity, value + 1));
 
     const addToCart = () => {
         if (adding || !product.in_stock) return;
 
+        const chosen = Math.min(Math.max(quantity, 1), maxQuantity);
         setAdding(true);
         router.post(
             route('store.cart.store', product.id),
-            { quantity: 1 },
+            { quantity: chosen },
             {
                 preserveScroll: true,
                 onFinish: () => setAdding(false),
@@ -49,6 +55,14 @@ export default function ProductDetail({ product }) {
                         <div className={`mt-6 inline-flex w-fit rounded-lg px-3 py-2 text-sm font-semibold ${product.in_stock ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-700'}`}>{product.in_stock ? `Tersedia · Stok ${product.stock}` : 'Stok sedang habis'}</div>
                         <div className="mt-8 border-t border-amber-900/10 pt-6"><h2 className="font-serif text-xl font-bold text-emerald-950">Tentang karya ini</h2><p className="mt-3 whitespace-pre-line leading-7 text-stone-600">{product.description || 'Deskripsi karya ini sedang disiapkan oleh perajin kami.'}</p></div>
                         <div className="mt-auto pt-10">
+                            <div className="flex items-center gap-3">
+                                <div className="inline-flex items-center rounded-xl border border-amber-900/15 bg-amber-50 p-1" role="group" aria-label="Pilih jumlah">
+                                    <button type="button" onClick={decrease} disabled={!product.in_stock || adding || quantity <= 1} aria-label="Kurangi jumlah" className="flex h-11 w-11 items-center justify-center rounded-lg text-xl font-bold text-emerald-900 disabled:opacity-35">-</button>
+                                    <span className="w-12 text-center text-base font-bold text-emerald-950" aria-live="polite" aria-label={`Jumlah ${quantity}`}>{quantity}</span>
+                                    <button type="button" onClick={increase} disabled={!product.in_stock || adding || quantity >= maxQuantity} aria-label="Tambah jumlah" className="flex h-11 w-11 items-center justify-center rounded-lg text-xl font-bold text-emerald-900 disabled:opacity-35">+</button>
+                                </div>
+                                <p className="text-xs leading-5 text-stone-500">Stok tersedia: <span className="font-bold text-emerald-900">{product.stock}</span></p>
+                            </div>
                             <button
                                 type="button"
                                 disabled={!product.in_stock || adding}

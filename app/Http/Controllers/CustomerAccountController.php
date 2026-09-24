@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Services\Report\TransactionReceiptService;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerAccountController extends Controller
 {
@@ -45,6 +47,16 @@ class CustomerAccountController extends Controller
         $transaction->load('details.product:id,barcode,name');
 
         return Inertia::render('Store/OrderDetail', ['order' => $this->orderDetail($transaction)]);
+    }
+
+    public function storeReceipt(Transaction $transaction, TransactionReceiptService $receipts): StreamedResponse
+    {
+        abort_unless(
+            $transaction->source === 'store' && (int) $transaction->user_id === (int) request()->user()->id,
+            404,
+        );
+
+        return $receipts->download($transaction);
     }
 
     private function orderSummary(Transaction $transaction): array

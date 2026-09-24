@@ -13,7 +13,7 @@ function normalizeMoney(value) {
     return Number.isFinite(numeric) ? numeric : 0;
 }
 
-export default function ReceiptModal({ show, receipt, onClose, onPrint }) {
+export default function ReceiptModal({ show, receipt, onClose, onPrint, pdfUrl = null, onMarkPaid = null }) {
     if (!receipt) {
         return null;
     }
@@ -175,6 +175,24 @@ export default function ReceiptModal({ show, receipt, onClose, onPrint }) {
                         >
                             Close
                         </button>
+                        {pdfUrl ? (
+                            <a
+                                href={pdfUrl}
+                                download
+                                className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+                            >
+                                Cetak Struk (PDF)
+                            </a>
+                        ) : null}
+                        {onMarkPaid ? (
+                            <button
+                                type="button"
+                                onClick={onMarkPaid}
+                                className="rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400"
+                            >
+                                Tandai Lunas
+                            </button>
+                        ) : null}
                         {onPrint ? (
                             <button
                                 type="button"

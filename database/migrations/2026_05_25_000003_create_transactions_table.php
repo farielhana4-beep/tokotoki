@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('invoice_number')->unique();
             $table->decimal('total_price', 12, 2);
-            $table->enum('payment_method', ['cash', 'qris'])->default('cash');
+            $table->enum('payment_method', ['cash', 'qris', 'transfer'])->default('cash');
             $table->enum('payment_status', ['pending', 'paid', 'failed', 'expired', 'canceled'])->default('pending');
             $table->string('midtrans_snap_token')->nullable();
             $table->timestamps();

@@ -64,6 +64,9 @@ export default function Index({ settings }) {
         store_location: settings.branding.store_location ?? '',
         store_instagram: settings.branding.store_instagram ?? '',
         store_tiktok: settings.branding.store_tiktok ?? '',
+        store_bank_name: settings.branding.store_bank_name ?? '',
+        store_bank_number: settings.branding.store_bank_number ?? '',
+        store_bank_holder: settings.branding.store_bank_holder ?? '',
         school_name: settings.branding.school_name ?? '',
         school_address: settings.branding.school_address ?? '',
         school_phone: settings.branding.school_phone ?? '',
@@ -317,6 +320,35 @@ export default function Index({ settings }) {
                                             placeholder="Kota, Provinsi"
                                         />
                                         {errors.store_location ? <p className="mt-2 text-sm text-red-300">{errors.store_location}</p> : null}
+                                    </Field>
+                                </div>
+
+                                <Field label="Nama bank" description="Ditampilkan saat customer memilih Transfer Bank.">
+                                    <Input
+                                        value={data.store_bank_name}
+                                        onChange={(event) => setData('store_bank_name', event.target.value)}
+                                        placeholder="BCA"
+                                    />
+                                    {errors.store_bank_name ? <p className="mt-2 text-sm text-red-300">{errors.store_bank_name}</p> : null}
+                                </Field>
+
+                                <Field label="Nomor rekening" description="Hanya angka, ditampilkan saat Transfer Bank.">
+                                    <Input
+                                        value={data.store_bank_number}
+                                        onChange={(event) => setData('store_bank_number', event.target.value)}
+                                        placeholder="1234567890"
+                                    />
+                                    {errors.store_bank_number ? <p className="mt-2 text-sm text-red-300">{errors.store_bank_number}</p> : null}
+                                </Field>
+
+                                <div className="lg:col-span-2">
+                                    <Field label="Nama pemilik rekening" description="Nama pada rekening toko.">
+                                        <Input
+                                            value={data.store_bank_holder}
+                                            onChange={(event) => setData('store_bank_holder', event.target.value)}
+                                            placeholder="Nama pemilik rekening"
+                                        />
+                                        {errors.store_bank_holder ? <p className="mt-2 text-sm text-red-300">{errors.store_bank_holder}</p> : null}
                                     </Field>
                                 </div>
                             </div>

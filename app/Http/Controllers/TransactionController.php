@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Transaction;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,45 +17,49 @@ class TransactionController extends Controller
         $search = trim((string) $request->string('search'));
         $status = trim((string) $request->string('status', 'all'));
         $paymentMethod = trim((string) $request->string('payment_method', 'all'));
-        $date = trim((string) $request->string('date'));
+        $dateFrom = trim((string) $request->string('date_from'));
+        $dateTo = trim((string) $request->string('date_to'));
 
-        $transactions = Transaction::query()
+        $filteredQuery = function () use ($search, $status, $paymentMethod, $dateFrom, $dateTo) {
+            return Transaction::query()
+                ->where('invoice_number', 'not like', 'INV-DEMO-%')
+                ->when($search !== '', function ($query) use ($search) {
+                    $query->where(function ($inner) use ($search) {
+                        $inner->where('invoice_number', 'like', "%{$search}%")
+                            ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"));
+                    });
+                })
+                ->when($status !== 'all', fn ($query) => $query->where('payment_status', $status))
+                ->when($paymentMethod !== 'all', fn ($query) => $query->where('payment_method', $paymentMethod))
+                // whereDate keeps the whole calendar day, so transactions at
+                // any hour of the end date stay included.
+                ->when($dateFrom !== '', fn ($query) => $query->whereDate('created_at', '>=', $dateFrom))
+                ->when($dateTo !== '', fn ($query) => $query->whereDate('created_at', '<=', $dateTo));
+        };
+
+        $transactions = $filteredQuery()
             ->with([
                 'user:id,name',
                 'details.product:id,barcode,name',
             ])
-            ->where('invoice_number', 'not like', 'INV-DEMO-%')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($inner) use ($search) {
-                    $inner->where('invoice_number', 'like', "%{$search}%")
-                        ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"));
-                });
-            })
-            ->when($status !== 'all', fn ($query) => $query->where('payment_status', $status))
-            ->when($paymentMethod !== 'all', fn ($query) => $query->where('payment_method', $paymentMethod))
-            ->when($date !== '', fn ($query) => $query->whereDate('created_at', $date))
             ->latest()
             ->paginate(12)
             ->withQueryString()
             ->through(fn (Transaction $transaction) => $this->mapTransaction($transaction));
 
+        // Summary follows the same filters. Revenue counts paid transactions
+        // only, matching the business rule used across reports.
         $summary = [
-            'total' => Transaction::query()
-                ->where('invoice_number', 'not like', 'INV-DEMO-%')
-                ->count(),
-            'paid' => Transaction::query()
-                ->where('invoice_number', 'not like', 'INV-DEMO-%')
+            'total' => $filteredQuery()->count(),
+            'paid' => $filteredQuery()
                 ->where('payment_status', PaymentStatus::Paid->value)
                 ->count(),
-            'pending' => Transaction::query()
-                ->where('invoice_number', 'not like', 'INV-DEMO-%')
+            'pending' => $filteredQuery()
                 ->where('payment_status', PaymentStatus::Pending->value)
                 ->count(),
-            'qris' => Transaction::query()
-                ->where('invoice_number', 'not like', 'INV-DEMO-%')
-                ->where('payment_method', PaymentMethod::Qris->value)
-                ->where('payment_status', PaymentStatus::Pending->value)
-                ->count(),
+            'revenue' => (float) $filteredQuery()
+                ->where('payment_status', PaymentStatus::Paid->value)
+                ->sum('total_price'),
         ];
 
         return Inertia::render('Transactions/Index', [
@@ -63,7 +68,8 @@ class TransactionController extends Controller
                 'search' => $search,
                 'status' => $status,
                 'payment_method' => $paymentMethod,
-                'date' => $date,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
             ],
             'summary' => $summary,
             'statusOptions' => array_merge(
@@ -87,6 +93,19 @@ class TransactionController extends Controller
                 ),
             ),
         ]);
+    }
+
+    public function updateStatus(Request $request, Transaction $transaction): RedirectResponse
+    {
+        $validated = $request->validate([
+            'payment_status' => ['required', 'in:paid,pending'],
+        ]);
+
+        $transaction->forceFill([
+            'payment_status' => PaymentStatus::from($validated['payment_status']),
+        ])->save();
+
+        return back()->with('success', "Transaksi {$transaction->invoice_number} ditandai sebagai {$transaction->payment_status->label()}.");
     }
 
     private function mapTransaction(Transaction $transaction): array

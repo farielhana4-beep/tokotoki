@@ -28,6 +28,7 @@ Route::get('/checkout/success/{transaction}', [StoreCheckoutController::class, '
 Route::middleware('auth')->group(function () {
     Route::get('/akun', [CustomerAccountController::class, 'account'])->name('store.account');
     Route::get('/pesanan', [CustomerAccountController::class, 'orders'])->name('store.orders.index');
+    Route::get('/pesanan/{transaction}/struk', [CustomerAccountController::class, 'storeReceipt'])->name('store.orders.receipt');
     Route::get('/pesanan/{transaction}', [CustomerAccountController::class, 'showOrder'])->name('store.orders.show');
 });
 

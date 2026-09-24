@@ -73,7 +73,7 @@ class ReportAnalyticsTest extends TestCase
                 ->has('report.summary', 4)
                 ->where('report.summary.0.value', 16000)
                 ->has('report.timeline')
-                ->has('report.payment_methods', 2)
+                ->has('report.payment_methods', 3)
                 ->has('report.top_products', 2)
                 ->has('report.low_stock_alerts', 1)
                 ->has('report.cashier_performance', 1)
